@@ -1,0 +1,426 @@
+SIMULATION
+  SIMULATION_TYPE SUBSURFACE
+  PROCESS_MODELS
+    SUBSURFACE_FLOW flow
+      MODE RICHARDS
+    /
+    SUBSURFACE_GEOMECHANICS geomech
+      OPTIONS
+        FLOW_COUPLING TWO_WAY_COUPLED
+      /
+    /
+  /
+END
+
+SUBSURFACE
+
+#=========================== discretization ===================================
+GRID
+  TYPE UNSTRUCTURED_explicit layers4.uge
+END
+
+#=========================== numerical methods ================================
+NUMERICAL_METHODS FLOW
+  TIMESTEPPER
+    # Start with a small timestep; PFLOTRAN will grow it as allowed.
+    INITIAL_TIMESTEP_SIZE 1.d-6 day
+  /
+END
+
+#=========================== time control =====================================
+# Injection stage: 25 days at 1 L/s. (Recommended: run shut-in as a separate restart stage.)
+
+TIME
+  FINAL_TIME 25.d0 day
+  MAXIMUM_TIMESTEP_SIZE 1.d0 day
+END
+
+# Reference (absolute) pressure used for fixed-head boundaries (h = 0).
+REFERENCE_PRESSURE 5.3E6
+
+#=========================== material properties (FLOW) =======================
+# 4-layer stratigraphy: Overburden / Bartlesville Sand / Basal Layer / Underburden
+# Permeability units: m^2. 100 mD ~ 1e-13 m^2.
+
+MATERIAL_PROPERTY overburden
+  ID 1
+  POROSITY 0.08
+  CHARACTERISTIC_CURVES default
+  PERMEABILITY
+    PERM_ISO 5.d-18
+  /
+END
+
+MATERIAL_PROPERTY bartlesville_sand
+  ID 2
+  POROSITY 0.20
+  CHARACTERISTIC_CURVES default
+  PERMEABILITY
+    PERM_ISO 1.d-13
+  /
+END
+
+MATERIAL_PROPERTY basal_layer
+  ID 3
+  POROSITY 0.06
+  CHARACTERISTIC_CURVES default
+  PERMEABILITY
+    PERM_ISO 2.d-18
+  /
+END
+
+MATERIAL_PROPERTY underburden
+  ID 4
+  POROSITY 0.08
+  CHARACTERISTIC_CURVES default
+  PERMEABILITY
+    PERM_ISO 5.d-18
+  /
+END
+
+#=========================== characteristic curves ============================
+CHARACTERISTIC_CURVES default
+  SATURATION_FUNCTION BROOKS_COREY
+    ALPHA 1.d-4
+    LAMBDA 0.3d0
+    LIQUID_RESIDUAL_SATURATION 0.1d0
+    SMOOTH
+  /
+  PERMEABILITY_FUNCTION MUALEM_BC_LIQ
+    LAMBDA 0.3d0
+    LIQUID_RESIDUAL_SATURATION 0.1d0
+  /
+END
+
+#=========================== output options ===================================
+OUTPUT
+  ACKNOWLEDGE_VTK_FLAW
+  SNAPSHOT_FILE
+    TIMES day 0.d0 1.25d0 2.5d0 3.75d0 5.d0 6.25d0 7.5d0 8.75d0 10.d0 \
+          11.25d0 12.5d0 13.75d0 15.d0 16.25d0 17.5d0 18.75d0 20.d0 \
+          21.25d0 22.5d0 23.75d0 25.d0
+    FORMAT VTK
+    VARIABLES
+      LIQUID_PRESSURE
+    /
+/
+END
+
+#=========================== regions ==========================================
+REGION All
+  COORDINATES
+    -1.d10 -1.d10 -1.d10
+     1.d10  1.d10  1.d10
+  /
+END
+
+# Domain boundary regions (for flow BCs)
+
+REGION top
+  FILE top.ex
+END
+
+REGION bottom
+  FILE bottom.ex
+END
+
+REGION north
+  FILE north.ex
+END
+
+REGION south
+  FILE south.ex
+END
+
+REGION east
+  FILE east.ex
+END
+
+REGION west
+  FILE west.ex
+END
+
+# Injection region (well completion)
+REGION wellbore
+  FILE wellbore.ex
+END
+
+#=========================== flow conditions ==================================
+FLOW_CONDITION initial
+  TYPE
+    LIQUID_PRESSURE DIRICHLET
+  /
+  LIQUID_PRESSURE 5.3E6
+END
+
+# Fixed-head (h = 0) implemented as constant Dirichlet pressure at reference pressure.
+FLOW_CONDITION fixed_head
+  TYPE
+    LIQUID_PRESSURE DIRICHLET
+  /
+  LIQUID_PRESSURE 5.3E6
+END
+
+# No-flow boundary (zero normal pressure gradient)
+FLOW_CONDITION noflow
+  TYPE
+    LIQUID_PRESSURE DIRICHLET
+  /
+  LIQUID_PRESSURE 5.3E6
+END
+
+# Injection: 1 L/s = 1e-3 m^3/s
+
+FLOW_CONDITION injection_1Lps
+  TYPE
+    RATE SCALED_VOLUMETRIC_RATE VOLUME
+  /
+  RATE 1.d-3 m^3/s
+END
+
+#=========================== condition couplers ===============================
+
+INITIAL_CONDITION
+  FLOW_CONDITION initial
+  REGION All
+END
+
+# Source term for the injection wellbore region
+
+SOURCE_SINK inj
+  FLOW_CONDITION injection_1Lps
+  REGION wellbore
+END
+
+# Flow boundary conditions:
+# - Lateral boundaries: fixed head (Dirichlet pressure)
+# - Top/bottom: no-flow
+
+BOUNDARY_CONDITION west_bc
+  FLOW_CONDITION fixed_head
+  REGION west
+END
+
+BOUNDARY_CONDITION east_bc
+  FLOW_CONDITION fixed_head
+  REGION east
+END
+
+BOUNDARY_CONDITION north_bc
+  FLOW_CONDITION fixed_head
+  REGION north
+END
+
+BOUNDARY_CONDITION south_bc
+  FLOW_CONDITION fixed_head
+  REGION south
+END
+
+BOUNDARY_CONDITION top_bc
+  FLOW_CONDITION noflow
+  REGION top
+END
+
+BOUNDARY_CONDITION bottom_bc
+  FLOW_CONDITION noflow
+  REGION bottom
+END
+
+
+# Cell-based material ID assignment for flow
+STRATA
+  FILE ./layers4_material_ids.h5
+END
+
+END_SUBSURFACE
+
+#================================ geomechanics ===============================
+GEOMECHANICS
+
+GEOMECHANICS_GRID
+  TYPE UNSTRUCTURED layers4.ugi
+END
+
+GEOMECHANICS_MAPPING_FILE layers4.mapping
+
+# Global region
+GEOMECHANICS_REGION all_geomech
+  FILE layers4_all.vset
+END
+
+# Boundary regions for mechanics BCs
+GEOMECHANICS_REGION west_geomech
+  FILE west.vset
+END
+
+GEOMECHANICS_REGION east_geomech
+  FILE east.vset
+END
+
+GEOMECHANICS_REGION north_geomech
+  FILE north.vset
+END
+
+GEOMECHANICS_REGION south_geomech
+  FILE south.vset
+END
+
+GEOMECHANICS_REGION bottom_geomech
+  FILE bottom.vset
+END
+
+GEOMECHANICS_REGION top_geomech
+  FILE top.vset
+END
+
+GEOMECHANICS_REGION overburden
+  FILE overburden.vset
+END
+
+GEOMECHANICS_REGION bartlesville_sand
+  FILE bartlesville_sand.vset
+END
+
+GEOMECHANICS_REGION basal_layer
+  FILE basal_layer.vset
+END
+
+GEOMECHANICS_REGION underburden
+  FILE underburden.vset
+END
+
+# --------- Roller boundary conditions (all sides except the free surface) ----
+# west/east: Ux = 0
+# north/south: Uy = 0
+# bottom: Uz = 0
+# top: traction-free (do NOT prescribe displacement on top)
+
+GEOMECHANICS_CONDITION west_roller
+  TYPE
+    DISPLACEMENT_X DIRICHLET
+  END
+  DISPLACEMENT_X 0.d0
+END
+
+GEOMECHANICS_CONDITION east_roller
+  TYPE
+    DISPLACEMENT_X DIRICHLET
+  END
+  DISPLACEMENT_X 0.d0
+END
+
+GEOMECHANICS_CONDITION north_roller
+  TYPE
+    DISPLACEMENT_Y DIRICHLET
+  END
+  DISPLACEMENT_Y 0.d0
+END
+
+GEOMECHANICS_CONDITION south_roller
+  TYPE
+    DISPLACEMENT_Y DIRICHLET
+  END
+  DISPLACEMENT_Y 0.d0
+END
+
+GEOMECHANICS_CONDITION bottom_roller
+  TYPE
+    DISPLACEMENT_Z DIRICHLET
+  END
+  DISPLACEMENT_Z 0.d0
+END
+
+# Apply roller BCs
+
+GEOMECHANICS_BOUNDARY_CONDITION west_bc
+  GEOMECHANICS_CONDITION west_roller
+  GEOMECHANICS_REGION west_geomech
+END
+
+GEOMECHANICS_BOUNDARY_CONDITION east_bc
+  GEOMECHANICS_CONDITION east_roller
+  GEOMECHANICS_REGION east_geomech
+END
+
+GEOMECHANICS_BOUNDARY_CONDITION north_bc
+  GEOMECHANICS_CONDITION north_roller
+  GEOMECHANICS_REGION north_geomech
+END
+
+GEOMECHANICS_BOUNDARY_CONDITION south_bc
+  GEOMECHANICS_CONDITION south_roller
+  GEOMECHANICS_REGION south_geomech
+END
+
+GEOMECHANICS_BOUNDARY_CONDITION bottom_bc
+  GEOMECHANICS_CONDITION bottom_roller
+  GEOMECHANICS_REGION bottom_geomech
+END
+
+# Note: no top displacement BC here (top is traction-free)
+
+
+# --------- Geomechanics material properties (IDs must match STRATA IDs) ------
+
+GEOMECHANICS_MATERIAL_PROPERTY overburden
+  ID 1
+  ROCK_DENSITY 2500.d0
+  YOUNGS_MODULUS 2.0d10     # 20 GPa
+  POISSONS_RATIO 0.28d0
+  BIOT_COEFFICIENT 0.7d0
+  THERMAL_EXPANSION_COEFFICIENT 0.d0
+END
+
+GEOMECHANICS_MATERIAL_PROPERTY bartlesville_sand
+  ID 2
+  ROCK_DENSITY 2500.d0
+  YOUNGS_MODULUS 9.0d9      # 9 GPa
+  POISSONS_RATIO 0.25d0
+  BIOT_COEFFICIENT 0.9d0
+  THERMAL_EXPANSION_COEFFICIENT 0.d0
+END
+
+GEOMECHANICS_MATERIAL_PROPERTY basal_layer
+  ID 3
+  ROCK_DENSITY 2500.d0
+  YOUNGS_MODULUS 2.5d10     # 25 GPa
+  POISSONS_RATIO 0.28d0
+  BIOT_COEFFICIENT 0.7d0
+  THERMAL_EXPANSION_COEFFICIENT 0.d0
+END
+
+GEOMECHANICS_MATERIAL_PROPERTY underburden
+  ID 4
+  ROCK_DENSITY 2500.d0
+  YOUNGS_MODULUS 2.0d10     # 20 GPa
+  POISSONS_RATIO 0.28d0
+  BIOT_COEFFICIENT 0.7d0
+  THERMAL_EXPANSION_COEFFICIENT 0.d0
+END
+
+GEOMECHANICS_STRATA
+  GEOMECHANICS_REGION overburden
+  GEOMECHANICS_MATERIAL overburden
+END
+
+GEOMECHANICS_STRATA
+  GEOMECHANICS_REGION bartlesville_sand
+  GEOMECHANICS_MATERIAL bartlesville_sand
+END
+
+GEOMECHANICS_STRATA
+  GEOMECHANICS_REGION basal_layer
+  GEOMECHANICS_MATERIAL basal_layer
+END
+
+GEOMECHANICS_STRATA
+  GEOMECHANICS_REGION underburden
+  GEOMECHANICS_MATERIAL underburden
+END
+
+GEOMECHANICS_OUTPUT
+  TIMES day 0.d0 1.25d0 2.5d0 3.75d0 5.d0 6.25d0 7.5d0 8.75d0 10.d0 11.25d0 12.5d0 13.75d0 15.d0 16.25d0 17.5d0 18.75d0 20.d0 21.25d0 22.5d0 23.75d0 25.d0
+  FORMAT HDF5
+END
+
+END

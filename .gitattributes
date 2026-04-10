@@ -1,0 +1,9 @@
+*.h5 filter=lfs diff=lfs merge=lfs -text
+*.ex filter=lfs diff=lfs merge=lfs -text
+*.uge filter=lfs diff=lfs merge=lfs -text
+*.ugi filter=lfs diff=lfs merge=lfs -text
+*.ele filter=lfs diff=lfs merge=lfs -text
+*.face filter=lfs diff=lfs merge=lfs -text
+*.neigh filter=lfs diff=lfs merge=lfs -text
+*.edge filter=lfs diff=lfs merge=lfs -text
+*.inp filter=lfs diff=lfs merge=lfs -text
