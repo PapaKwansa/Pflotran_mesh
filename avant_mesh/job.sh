@@ -1,4 +1,3 @@
-cat > job.sh <<'EOF'
 #!/bin/bash
 #SBATCH --job-name=pflotran
 #SBATCH --nodes=1
@@ -12,4 +11,3 @@ set -euo pipefail
 
 cd /home/harhin/Pflotran_mesh/avant_mesh
 srun -n 64 /home/harhin/PFLOTRAN/petsc/pflotran/src/pflotran/pflotran -input_prefix layers4
-EOF
