@@ -9,33 +9,52 @@ END
 
 SUBSURFACE
 
-#=========================== discretization ===================================
+#==============================================================================
+# Grid / discretization
+#==============================================================================
+# Unstructured explicit grid used for the flow model.
+# The corresponding face-region files (.ex) and material-ID file (.h5) must
+# exist in this directory.
 GRID
-  TYPE UNSTRUCTURED_explicit layers4.uge
+  TYPE UNSTRUCTURED_EXPLICIT layers4.uge
 END
 
-#=========================== numerical methods ================================
+#==============================================================================
+# Numerical controls
+#==============================================================================
+# Richards flow is nonlinear, so start with a conservative timestep and let
+# PFLOTRAN grow it as the solution allows.
 NUMERICAL_METHODS FLOW
   TIMESTEPPER
-    # Start with a small timestep; PFLOTRAN will grow it as allowed.
     INITIAL_TIMESTEP_SIZE 1.d-9 day
+    MAXIMUM_TIMESTEP_SIZE 1.d0 day
   /
 END
 
-#=========================== time control =====================================
-# Injection stage: 25 days at 1 L/s.
-
+#==============================================================================
+# Time control
+#==============================================================================
+# Stage 1 only:
+# Injection for 19 hours = 19/24 day = 0.7916667 day.
+# Use this run for injection, then restart for recovery.
 TIME
-  FINAL_TIME 25.d0 day
-  MAXIMUM_TIMESTEP_SIZE 1.d0 day
+  FINAL_TIME 19.d0 hour
 END
 
-# Reference (absolute) pressure used for fixed-head boundaries.
+# Absolute pressure used for the fixed-head boundaries and initial condition.
 REFERENCE_PRESSURE 5.3E6
 
-#=========================== material properties (FLOW) =======================
-# 4-layer stratigraphy: Overburden / Bartlesville Sand / Basal Layer / Underburden
-# Permeability units: m^2. 100 mD ~ 1e-13 m^2.
+#==============================================================================
+# Material properties
+#==============================================================================
+# Four-layer stratigraphy:
+#   1 = Overburden
+#   2 = Bartlesville Sand
+#   3 = Basal Layer
+#   4 = Underburden
+#
+# Permeability units are m^2.
+# 100 mD is approximately 1e-13 m^2.
 
 MATERIAL_PROPERTY overburden
   ID 1
@@ -73,7 +92,11 @@ MATERIAL_PROPERTY underburden
   /
 END
 
-#=========================== characteristic curves ============================
+#==============================================================================
+# Hydraulic constitutive relations
+#==============================================================================
+# Brooks-Corey capillary pressure and Mualem relative permeability.
+# The smoothing option helps with convergence near saturation transitions.
 CHARACTERISTIC_CURVES default
   SATURATION_FUNCTION BROOKS_COREY
     ALPHA 1.d-4
@@ -87,13 +110,16 @@ CHARACTERISTIC_CURVES default
   /
 END
 
-#=========================== output options ===================================
+#==============================================================================
+# Output
+#==============================================================================
+# Writes VTK snapshots for ParaView.
+# These are the field outputs; Slurm stdout/stderr are separate files.
 OUTPUT
   ACKNOWLEDGE_VTK_FLAW
   SNAPSHOT_FILE
     TIMES day 0.d0 1.25d0 2.5d0 3.75d0 5.d0 6.25d0 7.5d0 8.75d0 10.d0 \
-          11.25d0 12.5d0 13.75d0 15.d0 16.25d0 17.5d0 18.75d0 20.d0 \
-          21.25d0 22.5d0 23.75d0 25.d0
+          11.25d0 12.5d0 13.75d0 15.d0 16.25d0 17.5d0 18.75d0 19.d0
     FORMAT VTK
     VARIABLES
       LIQUID_PRESSURE
@@ -101,7 +127,10 @@ OUTPUT
   /
 END
 
-#=========================== regions ==========================================
+#==============================================================================
+# Regions
+#==============================================================================
+# Global domain region.
 REGION All
   COORDINATES
     -1.d10 -1.d10 -1.d10
@@ -109,8 +138,7 @@ REGION All
   /
 END
 
-# Domain boundary regions (for flow BCs)
-
+# Boundary face regions from the unstructured grid.
 REGION top
   FILE top.ex
 END
@@ -135,12 +163,15 @@ REGION west
   FILE west.ex
 END
 
-# Injection region (well completion)
+# Injection completion / wellbore region.
 REGION wellbore
   FILE wellbore.ex
 END
 
-#=========================== flow conditions ==================================
+#==============================================================================
+# Flow conditions
+#==============================================================================
+# Initial condition: hydrostatic / uniform reference pressure.
 FLOW_CONDITION initial
   TYPE
     LIQUID_PRESSURE DIRICHLET
@@ -148,7 +179,7 @@ FLOW_CONDITION initial
   LIQUID_PRESSURE 5.3E6
 END
 
-# Fixed-head boundary condition
+# Fixed-head lateral boundaries.
 FLOW_CONDITION fixed_head
   TYPE
     LIQUID_PRESSURE DIRICHLET
@@ -156,7 +187,7 @@ FLOW_CONDITION fixed_head
   LIQUID_PRESSURE 5.3E6
 END
 
-# True no-flow boundary condition
+# Zero-flux top and bottom boundaries.
 FLOW_CONDITION noflow
   TYPE
     LIQUID_FLUX NEUMANN
@@ -164,31 +195,30 @@ FLOW_CONDITION noflow
   LIQUID_FLUX 0.d0
 END
 
-# Injection: 1 L/s = 1e-3 m^3/s
-FLOW_CONDITION injection_1Lps
+# Injection rate:
+# 0.0019 m^3/s = 30 gpm approximately.
+FLOW_CONDITION injection_30gpm
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.d-3 m^3/s
+  RATE 1.9d-3 m^3/s
 END
 
-#=========================== condition couplers ===============================
-
+#==============================================================================
+# Condition couplers
+#==============================================================================
 INITIAL_CONDITION
   FLOW_CONDITION initial
   REGION All
 END
 
-# Source term for the injection wellbore region
+# Apply the injection to the wellbore region.
 SOURCE_SINK inj
-  FLOW_CONDITION injection_1Lps
+  FLOW_CONDITION injection_30gpm
   REGION wellbore
 END
 
-# Flow boundary conditions:
-# - Lateral boundaries: fixed head (Dirichlet pressure)
-# - Top/bottom: no-flow
-
+# Lateral fixed-head boundaries.
 BOUNDARY_CONDITION west_bc
   FLOW_CONDITION fixed_head
   REGION west
@@ -209,6 +239,7 @@ BOUNDARY_CONDITION south_bc
   REGION south
 END
 
+# Top and bottom are no-flow.
 BOUNDARY_CONDITION top_bc
   FLOW_CONDITION noflow
   REGION top
@@ -219,7 +250,10 @@ BOUNDARY_CONDITION bottom_bc
   REGION bottom
 END
 
-# Cell-based material ID assignment for flow
+#==============================================================================
+# Material assignment
+#==============================================================================
+# Cell-based material IDs for the flow grid.
 STRATA
   FILE ./layers4_material_ids.h5
 END
