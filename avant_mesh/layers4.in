@@ -3,6 +3,7 @@ SIMULATION
   PROCESS_MODELS
     SUBSURFACE_FLOW flow
       MODE RICHARDS
+      LOGGING_VERBOSITY 1
     /
   /
 END
@@ -22,12 +23,23 @@ END
 #==============================================================================
 # Numerical controls
 #==============================================================================
-# Richards flow is nonlinear, so start with a conservative timestep and let
-# PFLOTRAN grow it as the solution allows.
+# Richards flow is nonlinear, so start conservatively and let PFLOTRAN grow
+# the timestep only when the nonlinear solve behaves well.
 NUMERICAL_METHODS FLOW
   TIMESTEPPER
-    INITIAL_TIMESTEP_SIZE 1.d-9 day
+    INITIAL_TIMESTEP_SIZE 1.d-7 day
     MAXIMUM_TIMESTEP_SIZE 1.d0 day
+    PRESSURE_CHANGE_GOVERNOR 1.d4
+    SATURATION_CHANGE_GOVERNOR 1.d-2
+    TIMESTEP_REDUCTION_FACTOR 0.5d0
+    MAXIMUM_CONSECUTIVE_TS_CUTS 20
+  /
+  NEWTON_SOLVER
+    CONVERGENCE_INFO
+    PRINT_LINEAR_ITERATIONS
+    SNES_TYPE NTRDC
+    VERBOSE_LOGGING
+    MAXIMUM_NUMBER_OF_ITERATIONS 25
   /
 END
 
@@ -35,13 +47,14 @@ END
 # Time control
 #==============================================================================
 # Stage 1 only:
-# Injection for 19 hours = 19/24 day = 0.7916667 day.
-# Use this run for injection, then restart for recovery.
+# Injection for 19 hours.
+# Recovery should be run as a second restart stage with the injection source off.
 TIME
   FINAL_TIME 19.d0 hour
 END
 
-# Absolute pressure used for the fixed-head boundaries and initial condition.
+# Absolute reference pressure used for the provisional far-field boundaries and
+# the initial condition.
 REFERENCE_PRESSURE 5.3E6
 
 #==============================================================================
@@ -171,7 +184,9 @@ END
 #==============================================================================
 # Flow conditions
 #==============================================================================
-# Initial condition: hydrostatic / uniform reference pressure.
+# Initial condition: uniform reference pressure.
+# This is a provisional far-field pressure anchor, not a calibrated hydrostatic
+# profile.
 FLOW_CONDITION initial
   TYPE
     LIQUID_PRESSURE DIRICHLET
@@ -179,8 +194,10 @@ FLOW_CONDITION initial
   LIQUID_PRESSURE 5.3E6
 END
 
-# Fixed-head lateral boundaries.
-FLOW_CONDITION fixed_head
+# Lateral boundaries: provisional far-field pressure approximation.
+# If a datum elevation becomes available later, this can be changed to a true
+# hydrostatic boundary.
+FLOW_CONDITION far_field_pressure
   TYPE
     LIQUID_PRESSURE DIRICHLET
   /
@@ -196,7 +213,7 @@ FLOW_CONDITION noflow
 END
 
 # Injection rate:
-# 0.0019 m^3/s = 30 gpm approximately.
+# 0.0019 m^3/s is approximately 30 gpm.
 FLOW_CONDITION injection_30gpm
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
@@ -218,24 +235,24 @@ SOURCE_SINK inj
   REGION wellbore
 END
 
-# Lateral fixed-head boundaries.
+# Lateral far-field boundaries.
 BOUNDARY_CONDITION west_bc
-  FLOW_CONDITION fixed_head
+  FLOW_CONDITION far_field_pressure
   REGION west
 END
 
 BOUNDARY_CONDITION east_bc
-  FLOW_CONDITION fixed_head
+  FLOW_CONDITION far_field_pressure
   REGION east
 END
 
 BOUNDARY_CONDITION north_bc
-  FLOW_CONDITION fixed_head
+  FLOW_CONDITION far_field_pressure
   REGION north
 END
 
 BOUNDARY_CONDITION south_bc
-  FLOW_CONDITION fixed_head
+  FLOW_CONDITION far_field_pressure
   REGION south
 END
 
