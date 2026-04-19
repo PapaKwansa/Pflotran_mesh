@@ -39,12 +39,9 @@ NUMERICAL_METHODS FLOW
     MAXIMUM_CONSECUTIVE_TS_CUTS 20
   /
   NEWTON_SOLVER
-    CONVERGENCE_INFO
-    PRINT_LINEAR_ITERATIONS
     MAXIMUM_NUMBER_OF_ITERATIONS 25
   /
 END
-
 #==============================================================================
 # Time control
 #==============================================================================
