@@ -18,7 +18,7 @@ END
 NUMERICAL_METHODS FLOW
   TIMESTEPPER
     # Start with a small timestep; PFLOTRAN will grow it as allowed.
-    INITIAL_TIMESTEP_SIZE 1.d-6 day
+    INITIAL_TIMESTEP_SIZE 1.d-9 day
   /
 END
 
