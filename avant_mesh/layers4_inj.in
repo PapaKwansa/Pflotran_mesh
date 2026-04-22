@@ -209,7 +209,7 @@ FLOW_CONDITION injection_30gpm
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-5 m^3/s # changed the injection rate to a lower value
+  RATE 1.9d-6 m^3/s # changed the injection rate to a lower value
 END
 #==============================================================================
 # Condition couplers
