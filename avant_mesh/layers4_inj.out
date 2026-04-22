@@ -1,0 +1,633 @@
+
+================================
+  PFLOTRAN Development Version
+================================
+
+pflotran card:: GRID
+pflotran card:: NUMERICAL_METHODS
+pflotran card:: TIME
+pflotran card:: REFERENCE_PRESSURE
+"Reference Pressure units" set to default value.
+pflotran card:: MATERIAL_PROPERTY
+  Name :: overburden
+pflotran card:: MATERIAL_PROPERTY
+  Name :: bartlesville_sand
+pflotran card:: MATERIAL_PROPERTY
+  Name :: basal_layer
+pflotran card:: MATERIAL_PROPERTY
+  Name :: underburden
+pflotran card:: CHARACTERISTIC_CURVES
+  Name :: default
+pflotran card:: OUTPUT
+pflotran card:: REGION
+All
+pflotran card:: REGION
+top
+pflotran card:: REGION
+bottom
+pflotran card:: REGION
+north
+pflotran card:: REGION
+south
+pflotran card:: REGION
+east
+pflotran card:: REGION
+west
+pflotran card:: REGION
+wellbore
+pflotran card:: FLOW_CONDITION
+initial
+pflotran card:: FLOW_CONDITION
+far_field_pressure
+pflotran card:: FLOW_CONDITION
+noflow
+pflotran card:: FLOW_CONDITION
+injection_30gpm
+pflotran card:: INITIAL_CONDITION
+"Initial Condition name" set to default value.
+pflotran card:: SOURCE_SINK
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: STRATA
+pflotran card:: END_SUBSURFACE
+
+Number of processes: 10
+
+Extent of Gridded Domain
+ X: 0.000000E+00 - 1.000000E+04
+ Y: 0.000000E+00 - 1.000000E+04
+ Z: 0.000000E+00 - 7.500000E+02
+
+Size of Gridded Domain
+ Number of grid cells: 508227
+ Maximum number of grid cells per process: 53266
+ Minimum number of grid cells per process: 46644
+
+Min/Max Cell Volumes [m^3]
+ Maximum: 8.052520E+06
+ Minimum: 6.904134E+01
+Opening hdf5 file: ./layers4_material_ids.h5
+Setting up grid cell indices
+Opening group: Materials
+Reading dataset: Materials/Cell Ids
+  0.03 Seconds to set up indices
+Reading dataset: Materials/Material Ids
+  0.06 Seconds to read integer array.
+Closing group: Materials
+Closing hdf5 file: ./layers4_material_ids.h5
+
+Number of active grid cells: 508227
+Number of inactive grid cells: 0
+
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Initial Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   initial
+                  Region:   All
+--------------------------------------------------------------------------------
+
+  Flow Condition: initial
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   west
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   east
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   north
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   south
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   noflow
+                  Region:   top
+--------------------------------------------------------------------------------
+
+  Flow Condition: noflow
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+
+    Sub Condition: pressure
+      Type: neumann
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   noflow
+                  Region:   bottom
+--------------------------------------------------------------------------------
+
+  Flow Condition: noflow
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+
+    Sub Condition: pressure
+      Type: neumann
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Source/Sink
+
+--------------------------------------------------------------------------------
+          Flow Condition:   injection_30gpm
+                  Region:   wellbore
+--------------------------------------------------------------------------------
+
+  Flow Condition: injection_30gpm
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+
+    Sub Condition: rate
+      Type: scaled volumetric rate
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+Default HDF5 method is used in Initialization
+  Beginning setup of FLOW SNES
+ number of dofs =   1, number of phases =   1
+ mode = Richards: p
+  Finished setting up FLOW SNES
+
+ Requested processors =    10
+
+FLOW Time Stepper SNES
+      maximum number of steps: 999999
+constant time steps threshold: 5
+       maximum number of cuts: 20
+             reduction factor: 5.000000E-01
+        maximum growth factor: 2.000000E+00
+                 acceleration: on
+       acceleration threshold: 5
+       number of ramp entries: 5
+                ramp entry #1: 2.0000
+                ramp entry #2: 2.0000
+                ramp entry #3: 2.0000
+                ramp entry #4: 2.0000
+                ramp entry #5: 2.0000
+                ramp entry #6: 1.8000
+                ramp entry #7: 1.6000
+                ramp entry #8: 1.4000
+                ramp entry #9: 1.2000
+               ramp entry #10: 1.0000
+               ramp entry #11: 1.0000
+               ramp entry #12: 1.0000
+               ramp entry #13: 1.0000
+
+FLOW Newton Solver
+                         atol: 1.000000E-50
+                         rtol: 1.000000E-08
+                         stol: 1.000000E-08
+                         dtol: 1.000000E+04
+                      maxnorm: 1.000000E+20
+                    inftolres: -9.990000E+02
+                    inftolupd: -9.990000E+02
+                 inftolrelupd: -9.990000E+02
+                 inftolsclres: -9.990000E+02
+                     max iter: 25
+                     min iter: 1
+                         maxf: 10000
+                  matrix type: baij
+         precond. matrix type: baij
+               inexact newton: off
+            print convergence: on
+   print detailed convergence: off
+          check infinity norm: on
+
+FLOW Linear Solver
+                       solver: bcgs
+               preconditioner: bjacobi
+                         atol: 1.000000E-50
+                         rtol: 1.000000E-05
+                         dtol: 1.000000E+04
+            maximum iteration: 10000
+
+ --> write vtk output file: layers4_inj-000.vtk
+ WARNING: For unstructured grids, VTK formatted output lacks cell geometry information.
+      2.76 Seconds to write to VTK file(s)
+
+ Finished Initialization
+
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 4.58E-02 2x: 0.00E+00 2u: 0.00E+00 ir: 1.32E-03 iu: 0.00E+00 rsn:   0
+  1 2r: 3.27E-07 2x: 7.52E+09 2u: 1.92E+01 ir: 5.96E-08 iu: 6.80E+00 rsn: stol
+
+ Step      1 Time=  2.40000E-06 Dt=  2.40000E-06 [hour] conv_reason: 4
+  newton =   1 [       1] linear =     1 [         1] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 1 / 1
+  --> SNES Residual: 0.327438E-06 0.644276E-12 0.596046E-07
+  --> max change: dpmx=   6.7973E+00
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 4.97E-03 2x: 0.00E+00 2u: 0.00E+00 ir: 2.86E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.09E-07 2x: 7.52E+09 2u: 3.85E+01 ir: 5.96E-08 iu: 1.36E+01 rsn: stol
+
+ Step      2 Time=  7.20000E-06 Dt=  4.80000E-06 [hour] conv_reason: 4
+  newton =   1 [       2] linear =     1 [         2] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 1 / 1
+  --> SNES Residual: 0.209091E-06 0.411413E-12 0.596046E-07
+  --> max change: dpmx=   1.3594E+01
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 5.05E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 1.39E-07 2x: 7.52E+09 2u: 7.69E+01 ir: 2.98E-08 iu: 2.72E+01 rsn:   0
+  2 2r: 9.39E-08 2x: 7.52E+09 2u: 3.36E-05 ir: 2.98E-08 iu: 6.10E-06 rsn: stol
+
+ Step      3 Time=  1.68000E-05 Dt=  9.60000E-06 [hour] conv_reason: 4
+  newton =   2 [       4] linear =     2 [         4] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.938658E-07 0.184693E-12 0.298023E-07
+  --> max change: dpmx=   2.7189E+01
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 8.25E-08 2x: 7.52E+09 2u: 1.54E+02 ir: 2.98E-08 iu: 5.44E+01 rsn:   0
+  2 2r: 4.94E-08 2x: 7.52E+09 2u: 6.01E-05 ir: 2.98E-08 iu: 1.97E-05 rsn: stol
+
+ Step      4 Time=  3.60000E-05 Dt=  1.92000E-05 [hour] conv_reason: 4
+  newton =   2 [       6] linear =     2 [         6] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.494200E-07 0.972401E-13 0.298023E-07
+  --> max change: dpmx=   5.4378E+01
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 4.35E-08 2x: 7.52E+09 2u: 3.08E+02 ir: 2.98E-08 iu: 1.09E+02 rsn:   0
+  2 2r: 2.71E-08 2x: 7.52E+09 2u: 2.18E-04 ir: 7.45E-09 iu: 7.74E-05 rsn: stol
+
+ Step      5 Time=  7.44000E-05 Dt=  3.84000E-05 [hour] conv_reason: 4
+  newton =   2 [       8] linear =     2 [         8] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.270918E-07 0.533065E-13 0.745058E-08
+  --> max change: dpmx=   1.0876E+02
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 1.82E-08 2x: 7.52E+09 2u: 6.15E+02 ir: 7.45E-09 iu: 2.18E+02 rsn:   0
+  2 2r: 1.21E-08 2x: 7.52E+09 2u: 8.64E-04 ir: 7.45E-09 iu: 3.06E-04 rsn: stol
+
+ Step      6 Time=  1.51200E-04 Dt=  7.68000E-05 [hour] conv_reason: 4
+  newton =   2 [      10] linear =     2 [        10] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.120907E-07 0.237899E-13 0.745058E-08
+  --> max change: dpmx=   2.1751E+02
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 1.02E-08 2x: 7.52E+09 2u: 1.23E+03 ir: 3.73E-09 iu: 4.35E+02 rsn:   0
+  2 2r: 7.49E-09 2x: 7.52E+09 2u: 3.46E-03 ir: 3.73E-09 iu: 1.22E-03 rsn: stol
+
+ Step      7 Time=  3.04800E-04 Dt=  1.53600E-04 [hour] conv_reason: 4
+  newton =   2 [      12] linear =     2 [        12] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.748604E-08 0.147297E-13 0.372529E-08
+  --> max change: dpmx=   4.3501E+02
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 7.41E-09 2x: 7.52E+09 2u: 2.46E+03 ir: 5.59E-09 iu: 8.70E+02 rsn:   0
+  2 2r: 7.18E-09 2x: 7.52E+09 2u: 1.38E-02 ir: 5.59E-09 iu: 4.89E-03 rsn: stol
+
+ Step      8 Time=  6.12000E-04 Dt=  3.07200E-04 [hour] conv_reason: 4
+  newton =   2 [      14] linear =     2 [        14] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.717641E-08 0.141205E-13 0.558794E-08
+  --> max change: dpmx=   8.6999E+02
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 4.95E-09 2x: 7.52E+09 2u: 4.92E+03 ir: 1.66E-09 iu: 1.74E+03 rsn:   0
+  2 2r: 2.18E-09 2x: 7.52E+09 2u: 5.53E-02 ir: 9.31E-10 iu: 1.96E-02 rsn: stol
+
+ Step      9 Time=  1.22640E-03 Dt=  6.14400E-04 [hour] conv_reason: 4
+  newton =   2 [      16] linear =     2 [        16] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.218304E-08 0.429541E-14 0.931323E-09
+  --> max change: dpmx=   1.7399E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 8.57E-09 2x: 7.52E+09 2u: 9.84E+03 ir: 3.32E-09 iu: 3.48E+03 rsn:   0
+  2 2r: 1.46E-09 2x: 7.52E+09 2u: 2.21E-01 ir: 2.33E-10 iu: 7.82E-02 rsn: stol
+
+ Step     10 Time=  2.45520E-03 Dt=  1.22880E-03 [hour] conv_reason: 4
+  newton =   2 [      18] linear =     2 [        18] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.145904E-08 0.287084E-14 0.232831E-09
+  --> max change: dpmx=   3.4793E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.74E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 1.63E-08 2x: 7.52E+09 2u: 1.91E+04 ir: 6.44E-09 iu: 6.74E+03 rsn:   0
+  2 2r: 1.28E-09 2x: 7.52E+09 2u: 8.30E-01 ir: 2.33E-10 iu: 2.93E-01 rsn: stol
+
+ Step     11 Time=  4.83542E-03 Dt=  2.38022E-03 [hour] conv_reason: 4
+  newton =   2 [      20] linear =     2 [        20] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.127528E-08 0.250928E-14 0.232831E-09
+  --> max change: dpmx=   6.7378E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.02E-08 2x: 7.52E+09 2u: 2.37E+04 ir: 7.99E-09 iu: 8.37E+03 rsn:   0
+  2 2r: 1.27E-09 2x: 7.52E+09 2u: 1.28E+00 ir: 2.33E-10 iu: 4.52E-01 rsn: stol
+
+ Step     12 Time=  7.79181E-03 Dt=  2.95639E-03 [hour] conv_reason: 4
+  newton =   2 [      22] linear =     2 [        22] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.126683E-08 0.249264E-14 0.232831E-09
+  --> max change: dpmx=   8.3663E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.22E-08 2x: 7.52E+09 2u: 2.60E+04 ir: 8.77E-09 iu: 9.18E+03 rsn:   0
+  2 2r: 1.27E-09 2x: 7.52E+09 2u: 1.54E+00 ir: 2.33E-10 iu: 5.45E-01 rsn: stol
+
+ Step     13 Time=  1.10368E-02 Dt=  3.24502E-03 [hour] conv_reason: 4
+  newton =   2 [      24] linear =     2 [        24] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.127105E-08 0.250095E-14 0.232831E-09
+  --> max change: dpmx=   9.1800E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.32E-08 2x: 7.52E+09 2u: 2.71E+04 ir: 9.16E-09 iu: 9.59E+03 rsn:   0
+  2 2r: 1.21E-09 2x: 7.52E+09 2u: 1.68E+00 ir: 1.16E-10 iu: 5.94E-01 rsn: stol
+
+ Step     14 Time=  1.44268E-02 Dt=  3.38993E-03 [hour] conv_reason: 4
+  newton =   2 [      26] linear =     2 [        26] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.121233E-08 0.238541E-14 0.116415E-09
+  --> max change: dpmx=   9.5866E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.37E-08 2x: 7.52E+09 2u: 2.77E+04 ir: 9.36E-09 iu: 9.79E+03 rsn:   0
+  2 2r: 1.23E-09 2x: 7.52E+09 2u: 1.75E+00 ir: 2.33E-10 iu: 6.20E-01 rsn: stol
+
+ Step     15 Time=  1.78898E-02 Dt=  3.46300E-03 [hour] conv_reason: 4
+  newton =   2 [      28] linear =     2 [        28] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.122791E-08 0.241606E-14 0.232831E-09
+  --> max change: dpmx=   9.7898E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.39E-08 2x: 7.52E+09 2u: 2.80E+04 ir: 9.45E-09 iu: 9.89E+03 rsn:   0
+  2 2r: 1.31E-09 2x: 7.52E+09 2u: 1.79E+00 ir: 4.66E-10 iu: 6.33E-01 rsn: stol
+
+ Step     16 Time=  2.13899E-02 Dt=  3.50017E-03 [hour] conv_reason: 4
+  newton =   2 [      30] linear =     2 [        30] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.131092E-08 0.257940E-14 0.465661E-09
+  --> max change: dpmx=   9.8913E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.40E-08 2x: 7.52E+09 2u: 2.81E+04 ir: 9.50E-09 iu: 9.94E+03 rsn:   0
+  2 2r: 1.22E-09 2x: 7.52E+09 2u: 1.81E+00 ir: 1.16E-10 iu: 6.40E-01 rsn: stol
+
+ Step     17 Time=  2.49093E-02 Dt=  3.51939E-03 [hour] conv_reason: 4
+  newton =   2 [      32] linear =     2 [        32] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.121871E-08 0.239796E-14 0.116415E-09
+  --> max change: dpmx=   9.9420E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.73E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.48E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.41E-08 2x: 7.52E+09 2u: 2.82E+04 ir: 9.53E-09 iu: 9.97E+03 rsn:   0
+  2 2r: 1.23E-09 2x: 7.52E+09 2u: 1.82E+00 ir: 1.16E-10 iu: 6.44E-01 rsn: stol
+
+ Step     18 Time=  2.84390E-02 Dt=  3.52964E-03 [hour] conv_reason: 4
+  newton =   2 [      34] linear =     2 [        34] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.123115E-08 0.242244E-14 0.116415E-09
+  --> max change: dpmx=   9.9673E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.72E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.47E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.41E-08 2x: 7.52E+09 2u: 2.82E+04 ir: 9.54E-09 iu: 9.98E+03 rsn:   0
+  2 2r: 1.21E-09 2x: 7.52E+09 2u: 1.83E+00 ir: 1.16E-10 iu: 6.46E-01 rsn: stol
+
+ Step     19 Time=  3.19744E-02 Dt=  3.53540E-03 [hour] conv_reason: 4
+  newton =   2 [      36] linear =     2 [        36] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.121303E-08 0.238679E-14 0.116415E-09
+  --> max change: dpmx=   9.9800E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.72E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.47E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.41E-08 2x: 7.52E+09 2u: 2.82E+04 ir: 9.55E-09 iu: 9.99E+03 rsn:   0
+  2 2r: 1.22E-09 2x: 7.52E+09 2u: 1.83E+00 ir: 1.16E-10 iu: 6.47E-01 rsn: stol
+
+ Step     20 Time=  3.55133E-02 Dt=  3.53893E-03 [hour] conv_reason: 4
+  newton =   2 [      38] linear =     2 [        38] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.121832E-08 0.239719E-14 0.116415E-09
+  --> max change: dpmx=   9.9863E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.72E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.47E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.42E-08 2x: 7.52E+09 2u: 2.83E+04 ir: 9.55E-09 iu: 9.99E+03 rsn:   0
+  2 2r: 1.21E-09 2x: 7.52E+09 2u: 1.83E+00 ir: 1.16E-10 iu: 6.47E-01 rsn: stol
+
+ Step     21 Time=  3.90546E-02 Dt=  3.54134E-03 [hour] conv_reason: 4
+  newton =   2 [      40] linear =     2 [        40] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.121445E-08 0.238959E-14 0.116415E-09
+  --> max change: dpmx=   9.9895E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.72E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.47E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.42E-08 2x: 7.52E+09 2u: 2.83E+04 ir: 9.55E-09 iu: 9.99E+03 rsn:   0
+  2 2r: 1.25E-09 2x: 7.52E+09 2u: 1.83E+00 ir: 1.75E-10 iu: 6.48E-01 rsn: stol
+
+ Step     22 Time=  4.25978E-02 Dt=  3.54319E-03 [hour] conv_reason: 4
+  newton =   2 [      42] linear =     2 [        42] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.124999E-08 0.245950E-14 0.174623E-09
+  --> max change: dpmx=   9.9911E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.72E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.47E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.42E-08 2x: 7.52E+09 2u: 2.83E+04 ir: 9.55E-09 iu: 9.99E+03 rsn:   0
+  2 2r: 1.22E-09 2x: 7.52E+09 2u: 1.83E+00 ir: 1.16E-10 iu: 6.48E-01 rsn: stol
+
+ Step     23 Time=  4.61426E-02 Dt=  3.54476E-03 [hour] conv_reason: 4
+  newton =   2 [      44] linear =     2 [        44] cuts =  0 [   0]
+  --> SNES Linear/Non-Linear Iterations = 2 / 2
+  --> SNES Residual: 0.122320E-08 0.240680E-14 0.116415E-09
+  --> max change: dpmx=   9.9918E+03
+
+== RICHARDS FLOW ===============================================================
+  0 2r: 3.72E-04 2x: 0.00E+00 2u: 0.00E+00 ir: 1.47E-04 iu: 0.00E+00 rsn:   0
+  1 2r: 2.42E-08 2x: 7.52E+09 2u: 2.83E+04 ir: 9.55E-09 iu: 9.99E+03 rsn:   0

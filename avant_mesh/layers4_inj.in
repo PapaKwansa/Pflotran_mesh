@@ -130,15 +130,14 @@ END
 OUTPUT
   ACKNOWLEDGE_VTK_FLAW
   SNAPSHOT_FILE
-    TIMES day 0.d0 1.25d0 2.5d0 3.75d0 5.d0 6.25d0 7.5d0 8.75d0 10.d0 \
-          11.25d0 12.5d0 13.75d0 15.d0 16.25d0 17.5d0 18.75d0 19.d0
+    TIMES hour 0.d0 1.d0 2.d0 3.d0 4.d0 5.d0 6.d0 7.d0 8.d0 9.d0 \
+          10.d0 11.d0 12.d0 13.d0 14.d0 15.d0 16.d0 17.d0 18.d0 19.d0
     FORMAT VTK
     VARIABLES
       LIQUID_PRESSURE
     /
   /
 END
-
 #==============================================================================
 # Regions
 #==============================================================================
@@ -183,27 +182,22 @@ END
 #==============================================================================
 # Flow conditions
 #==============================================================================
-# Initial condition: uniform reference pressure.
-# This is a provisional far-field pressure anchor, not a calibrated hydrostatic
-# profile.
 FLOW_CONDITION initial
   TYPE
-    LIQUID_PRESSURE DIRICHLET
+    LIQUID_PRESSURE HYDROSTATIC
   /
+  DATUM 0.d0 0.d0 750.d0
   LIQUID_PRESSURE 5.3E6
 END
 
-# Lateral boundaries: provisional far-field pressure approximation.
-# If a datum elevation becomes available later, this can be changed to a true
-# hydrostatic boundary.
 FLOW_CONDITION far_field_pressure
   TYPE
-    LIQUID_PRESSURE DIRICHLET
+    LIQUID_PRESSURE HYDROSTATIC
   /
+  DATUM 0.d0 0.d0 750.d0
   LIQUID_PRESSURE 5.3E6
 END
 
-# Zero-flux top and bottom boundaries.
 FLOW_CONDITION noflow
   TYPE
     LIQUID_FLUX NEUMANN
@@ -211,15 +205,12 @@ FLOW_CONDITION noflow
   LIQUID_FLUX 0.d0
 END
 
-# Injection rate:
-# 0.0019 m^3/s is approximately 30 gpm.
 FLOW_CONDITION injection_30gpm
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-3 m^3/s
+  RATE 1.9d-5 m^3/s # changed the injection rate to a lower value
 END
-
 #==============================================================================
 # Condition couplers
 #==============================================================================
