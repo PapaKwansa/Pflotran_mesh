@@ -205,11 +205,11 @@ FLOW_CONDITION noflow
   LIQUID_FLUX 0.d0
 END
 
-FLOW_CONDITION injection_30gpm
+FLOW_CONDITION injection_test
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-6 m^3/s # changed the injection rate to a lower value
+  RATE 1.9d-6 m^3/s
 END
 #==============================================================================
 # Condition couplers
@@ -221,7 +221,7 @@ END
 
 # Apply the injection to the wellbore region.
 SOURCE_SINK inj
-  FLOW_CONDITION injection_30gpm
+  FLOW_CONDITION injection_test
   REGION wellbore
 END
 
