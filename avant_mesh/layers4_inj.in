@@ -208,7 +208,7 @@ FLOW_CONDITION injection_test
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-3 m^3/s # Change this to no-injection make it 0.
+  RATE 1.9d-6 m^3/s # Change this to no-injection make it 0.
 END
 #==============================================================================
 # Condition couplers
