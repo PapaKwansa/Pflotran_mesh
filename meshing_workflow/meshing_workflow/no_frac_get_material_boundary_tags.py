@@ -159,7 +159,7 @@ if use_default_length == "n":
     interval_length = float(input("Enter the desired interval length in meters: "))
     print('\n')
 else:
-    interval_length = 2.0
+    interval_length = 20.0
 interval_half = interval_length / 2.0
 
 # Define material ID mapping
@@ -176,6 +176,14 @@ if borehole_data.size > 0:
 
 # Save Updated _materials.txt File
 np.savetxt(pre + "_materials.txt", matids, fmt='%d')
+
+# Assign permeable lens in sandstone
+lens_radius = 1000.0  # 1km radius around wellbore
+for i in range(len(pos)):
+    if matids[i] == 2:  # bartlesville_sand
+        dist_xy = np.sqrt((pos[i,0] - 5000.0)**2 + (pos[i,1] - 5000.0)**2)
+        if dist_xy < lens_radius:
+            matids[i] = 6
 print("\nGenerated materials ID file.")
 
 # --------------------------------------------------------------------
