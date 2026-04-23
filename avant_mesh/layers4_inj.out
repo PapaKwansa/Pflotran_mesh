@@ -3,3 +3,296 @@
   PFLOTRAN Development Version
 ================================
 
+pflotran card:: GRID
+pflotran card:: NUMERICAL_METHODS
+pflotran card:: TIME
+pflotran card:: REFERENCE_PRESSURE
+"Reference Pressure units" set to default value.
+pflotran card:: MATERIAL_PROPERTY
+  Name :: overburden
+pflotran card:: MATERIAL_PROPERTY
+  Name :: bartlesville_sand
+pflotran card:: MATERIAL_PROPERTY
+  Name :: basal_layer
+pflotran card:: MATERIAL_PROPERTY
+  Name :: underburden
+pflotran card:: CHARACTERISTIC_CURVES
+  Name :: default
+pflotran card:: OUTPUT
+pflotran card:: REGION
+All
+pflotran card:: REGION
+top
+pflotran card:: REGION
+bottom
+pflotran card:: REGION
+north
+pflotran card:: REGION
+south
+pflotran card:: REGION
+east
+pflotran card:: REGION
+west
+pflotran card:: REGION
+wellbore
+pflotran card:: FLOW_CONDITION
+initial
+pflotran card:: FLOW_CONDITION
+far_field_pressure
+pflotran card:: FLOW_CONDITION
+noflow
+pflotran card:: FLOW_CONDITION
+injection_test
+pflotran card:: INITIAL_CONDITION
+"Initial Condition name" set to default value.
+pflotran card:: SOURCE_SINK
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: BOUNDARY_CONDITION
+pflotran card:: STRATA
+pflotran card:: END_SUBSURFACE
+
+Number of processes: 10
+
+Extent of Gridded Domain
+ X: 0.000000E+00 - 1.000000E+04
+ Y: 0.000000E+00 - 1.000000E+04
+ Z: 0.000000E+00 - 7.500000E+02
+
+Size of Gridded Domain
+ Number of grid cells: 508227
+ Maximum number of grid cells per process: 53266
+ Minimum number of grid cells per process: 46644
+
+Min/Max Cell Volumes [m^3]
+ Maximum: 8.052520E+06
+ Minimum: 6.904134E+01
+Opening hdf5 file: ./layers4_material_ids.h5
+Setting up grid cell indices
+Opening group: Materials
+Reading dataset: Materials/Cell Ids
+  0.00 Seconds to set up indices
+Reading dataset: Materials/Material Ids
+  0.01 Seconds to read integer array.
+Closing group: Materials
+Closing hdf5 file: ./layers4_material_ids.h5
+
+Number of active grid cells: 508227
+Number of inactive grid cells: 0
+
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Initial Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   initial
+                  Region:   All
+--------------------------------------------------------------------------------
+
+  Flow Condition: initial
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   west
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   east
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   north
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   far_field_pressure
+                  Region:   south
+--------------------------------------------------------------------------------
+
+  Flow Condition: far_field_pressure
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  3
+
+    Sub Condition: pressure
+      Type: hydrostatic
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   noflow
+                  Region:   top
+--------------------------------------------------------------------------------
+
+  Flow Condition: noflow
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+
+    Sub Condition: pressure
+      Type: neumann
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Boundary Condition
+
+--------------------------------------------------------------------------------
+          Flow Condition:   noflow
+                  Region:   bottom
+--------------------------------------------------------------------------------
+
+  Flow Condition: noflow
+    Synchronize time with update: no
+    Time units: yr
+    Length units: m
+      Datum:
+
+    Sub Condition: pressure
+      Type: neumann
+      Gradient:
+      Data:
+        Dataset: Unnamed Ascii Dataset
+          Type: dataset_ascii_type
+          Transient: no
+          Array Rank:  1
+
+--------------------------------------------------------------------------------
+
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
+  Source/Sink
+
+--------------------------------------------------------------------------------
+          Flow Condition:   injection_test
+                  Region:   wellbore
+--------------------------------------------------------------------------------
+
+  Flow Condition: injection_test

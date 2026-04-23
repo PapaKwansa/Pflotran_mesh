@@ -2,7 +2,7 @@ SIMULATION
   SIMULATION_TYPE SUBSURFACE
   PROCESS_MODELS
     SUBSURFACE_FLOW flow
-      MODE RICHARDS
+      MODE RICHARDS # Change this to saturated
     /
   /
   CHECKPOINT
@@ -176,7 +176,7 @@ END
 
 # Injection completion / wellbore region.
 REGION wellbore
-  FILE wellbore.ex
+  FILE wellbore.vset
 END
 
 #==============================================================================
@@ -209,7 +209,7 @@ FLOW_CONDITION injection_test
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-6 m^3/s
+  RATE 1.9d-3 m^3/s # Change this to no-injection make it 0.
 END
 #==============================================================================
 # Condition couplers
