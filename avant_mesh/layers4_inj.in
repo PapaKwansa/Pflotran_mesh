@@ -109,15 +109,15 @@ END
 #==============================================================================
 # Brooks-Corey capillary pressure and Mualem relative permeability.
 # The smoothing option helps with convergence near saturation transitions.
-CHARACTERISTIC_CURVES cc1
+CHARACTERISTIC_CURVES default
   SATURATION_FUNCTION VAN_GENUCHTEN
     ALPHA 1.d-4
-    M 0.5d0
-    LIQUID_RESIDUAL_SATURATION 0.1d0
+    M 0.9d0
+    LIQUID_RESIDUAL_SATURATION 0.115d0
   /
   PERMEABILITY_FUNCTION MUALEM_VG_LIQ
-    M 0.5d0
-    LIQUID_RESIDUAL_SATURATION 0.1d0
+    M 0.9d0
+    LIQUID_RESIDUAL_SATURATION 0.115d0
   /
 END
 
@@ -208,7 +208,7 @@ FLOW_CONDITION injection_test
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-6 m^3/s # Change this to no-injection make it 0.
+  RATE 1.9d-3 m^3/s # Change this to no-injection make it 0.
 END
 #==============================================================================
 # Condition couplers
