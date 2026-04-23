@@ -109,15 +109,14 @@ END
 #==============================================================================
 # Brooks-Corey capillary pressure and Mualem relative permeability.
 # The smoothing option helps with convergence near saturation transitions.
-CHARACTERISTIC_CURVES default
-  SATURATION_FUNCTION BROOKS_COREY
+CHARACTERISTIC_CURVES cc1
+  SATURATION_FUNCTION VAN_GENUCHTEN
     ALPHA 1.d-4
-    LAMBDA 0.3d0
+    M 0.5d0
     LIQUID_RESIDUAL_SATURATION 0.1d0
-    SMOOTH
   /
-  PERMEABILITY_FUNCTION MUALEM_BC_LIQ
-    LAMBDA 0.3d0
+  PERMEABILITY_FUNCTION MUALEM_VG_LIQ
+    M 0.5d0
     LIQUID_RESIDUAL_SATURATION 0.1d0
   /
 END
