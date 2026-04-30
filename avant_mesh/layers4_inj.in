@@ -2,7 +2,7 @@ SIMULATION
   SIMULATION_TYPE SUBSURFACE
   PROCESS_MODELS
     SUBSURFACE_FLOW flow
-      MODE RICHARDS # Change this to saturated
+      MODE RICHARDS
     /
   /
   CHECKPOINT
@@ -14,25 +14,20 @@ END
 
 SUBSURFACE
 
+#============================================================================== 
+# Grid
 #==============================================================================
-# Grid / discretization
-#==============================================================================
-# Unstructured explicit grid used for the flow model.
-# The corresponding face-region files (.ex) and material-ID file (.h5) must
-# exist in this directory.
 GRID
   TYPE UNSTRUCTURED_EXPLICIT layers4.uge
 END
 
-#==============================================================================
+#============================================================================== 
 # Numerical controls
 #==============================================================================
-# Richards flow is nonlinear, so start conservatively and let PFLOTRAN grow
-# the timestep only when the nonlinear solve behaves well.
 NUMERICAL_METHODS FLOW
   TIMESTEPPER
     INITIAL_TIMESTEP_SIZE 1.d-7 day
-    MAXIMUM_TIMESTEP_SIZE 1.d0 day
+    MAXIMUM_TIMESTEP_SIZE 1.d-2 day
     PRESSURE_CHANGE_GOVERNOR 1.d4
     SATURATION_CHANGE_GOVERNOR 1.d-2
     TIMESTEP_REDUCTION_FACTOR 0.5d0
@@ -40,34 +35,22 @@ NUMERICAL_METHODS FLOW
   /
   NEWTON_SOLVER
     MAXIMUM_NUMBER_OF_ITERATIONS 25
+    LINE_SEARCH TRUE
   /
 END
-#==============================================================================
+
+#============================================================================== 
 # Time control
 #==============================================================================
-# Stage 1 only:
-# Injection for 19 hours.
-# Recovery should be run as a second restart stage with the injection source off.
 TIME
   FINAL_TIME 19.d0 hour
 END
 
-# Absolute reference pressure used for the provisional far-field boundaries and
-# the initial condition.
 REFERENCE_PRESSURE 5.3E6
 
-#==============================================================================
+#============================================================================== 
 # Material properties
 #==============================================================================
-# Four-layer stratigraphy:
-#   1 = Overburden
-#   2 = Bartlesville Sand
-#   3 = Basal Layer
-#   4 = Underburden
-#
-# Permeability units are m^2.
-# 100 mD is approximately 1e-13 m^2.
-
 MATERIAL_PROPERTY overburden
   ID 1
   POROSITY 0.08
@@ -104,28 +87,24 @@ MATERIAL_PROPERTY underburden
   /
 END
 
+#============================================================================== 
+# Hydraulic relations
 #==============================================================================
-# Hydraulic constitutive relations
-#==============================================================================
-# Brooks-Corey capillary pressure and Mualem relative permeability.
-# The smoothing option helps with convergence near saturation transitions.
 CHARACTERISTIC_CURVES default
   SATURATION_FUNCTION VAN_GENUCHTEN
     ALPHA 1.d-4
-    M 0.9d0
+    M 0.6d0
     LIQUID_RESIDUAL_SATURATION 0.115d0
   /
   PERMEABILITY_FUNCTION MUALEM_VG_LIQ
-    M 0.9d0
+    M 0.6d0
     LIQUID_RESIDUAL_SATURATION 0.115d0
   /
 END
 
-#==============================================================================
+#============================================================================== 
 # Output
 #==============================================================================
-# Writes VTK snapshots for ParaView.
-# These are the field outputs; Slurm stdout/stderr are separate files.
 OUTPUT
   ACKNOWLEDGE_VTK_FLAW
   SNAPSHOT_FILE
@@ -137,10 +116,10 @@ OUTPUT
     /
   /
 END
-#==============================================================================
+
+#============================================================================== 
 # Regions
 #==============================================================================
-# Global domain region.
 REGION All
   COORDINATES
     -1.d10 -1.d10 -1.d10
@@ -148,7 +127,6 @@ REGION All
   /
 END
 
-# Boundary face regions from the unstructured grid.
 REGION top
   FILE top.ex
 END
@@ -173,12 +151,7 @@ REGION west
   FILE west.ex
 END
 
-# Injection completion / wellbore region.
-REGION wellbore
-  FILE wellbore.vset
-END
-
-#==============================================================================
+#============================================================================== 
 # Flow conditions
 #==============================================================================
 FLOW_CONDITION initial
@@ -204,27 +177,16 @@ FLOW_CONDITION noflow
   LIQUID_FLUX 0.d0
 END
 
-FLOW_CONDITION injection_test
-  TYPE
-    RATE SCALED_VOLUMETRIC_RATE VOLUME
-  /
-  RATE 0 m^3/s # Change this to no-injection make it 0.
-END
-#==============================================================================
-# Condition couplers
+#============================================================================== 
+# Couplers
 #==============================================================================
 INITIAL_CONDITION
   FLOW_CONDITION initial
   REGION All
 END
 
-# Apply the injection to the wellbore region.
-SOURCE_SINK inj
-  FLOW_CONDITION injection_test
-  REGION wellbore
-END
+# NOTE: well removed for stability baseline
 
-# Lateral far-field boundaries.
 BOUNDARY_CONDITION west_bc
   FLOW_CONDITION far_field_pressure
   REGION west
@@ -245,7 +207,6 @@ BOUNDARY_CONDITION south_bc
   REGION south
 END
 
-# Top and bottom are no-flow.
 BOUNDARY_CONDITION top_bc
   FLOW_CONDITION noflow
   REGION top
@@ -256,10 +217,9 @@ BOUNDARY_CONDITION bottom_bc
   REGION bottom
 END
 
+#============================================================================== 
+# Materials
 #==============================================================================
-# Material assignment
-#==============================================================================
-# Cell-based material IDs for the flow grid.
 STRATA
   FILE ./layers4_material_ids.h5
 END
