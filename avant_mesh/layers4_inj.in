@@ -152,21 +152,19 @@ REGION west
 END
 
 #============================================================================== 
-# Flow conditions
+# Flow conditions (NO HYDROSTATIC)
 #==============================================================================
 FLOW_CONDITION initial
   TYPE
-    LIQUID_PRESSURE HYDROSTATIC
+    LIQUID_PRESSURE
   /
-  DATUM 0.d0 0.d0 750.d0
   LIQUID_PRESSURE 5.3E6
 END
 
 FLOW_CONDITION far_field_pressure
   TYPE
-    LIQUID_PRESSURE HYDROSTATIC
+    LIQUID_PRESSURE
   /
-  DATUM 0.d0 0.d0 750.d0
   LIQUID_PRESSURE 5.3E6
 END
 
@@ -184,8 +182,6 @@ INITIAL_CONDITION
   FLOW_CONDITION initial
   REGION All
 END
-
-# NOTE: well removed for stability baseline
 
 BOUNDARY_CONDITION west_bc
   FLOW_CONDITION far_field_pressure
