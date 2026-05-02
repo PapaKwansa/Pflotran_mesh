@@ -19,4 +19,4 @@ cd /home/harhin/Pflotran_mesh/avant_mesh
 # Stage 2: recovery
 /home/harhin/PFLOTRAN/petsc/arch-linux-c-opt/bin/mpirun -np 64 \
   /home/harhin/PFLOTRAN/petsc/pflotran/src/pflotran/pflotran \
-  -input_prefix layers4_recovery
+  -input_prefix layers4_geomech
