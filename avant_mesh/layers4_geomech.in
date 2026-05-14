@@ -1,9 +1,8 @@
 # ============================================================
 # PFLOTRAN: FLOW + POROELASTIC GEOMECHANICS
 # ============================================================
-
 SIMULATION
-  SIMULATION_TYPE SUBSURFACE
+  SIMULATION_TYPE GEOMECHANICS_SUBSURFACE
 
   PROCESS_MODELS
     SUBSURFACE_FLOW flow
@@ -11,13 +10,14 @@ SIMULATION
     /
 
     GEOMECHANICS_SUBSURFACE geomech
+      OPTIONS
+        FLOW_COUPLING ONE_WAY_COUPLED
+      /
     /
   /
-
-  RESTART
-    FILENAME layers4_inj-restart.h5
-  /
 END
+
+
 
 
 # ============================================================
@@ -40,7 +40,7 @@ NUMERICAL_METHODS FLOW
   TIMESTEPPER
     INITIAL_TIMESTEP_SIZE 1.d-7 day
     MAXIMUM_TIMESTEP_SIZE 1.d-5 day
-    PRESSURE_CHANGE_GOVERNOR 2.d2
+    PRESSURE_CHANGE_GOVERNOR 2.d3
     SATURATION_CHANGE_GOVERNOR 1.d-2
     TIMESTEP_REDUCTION_FACTOR 0.5d0
     MAXIMUM_CONSECUTIVE_TS_CUTS 20
@@ -255,15 +255,16 @@ END_SUBSURFACE
 # ============================================================
 # GEOMECHANICS
 # ============================================================
-
 GEOMECHANICS
 
 GEOMECHANICS_GRID
   TYPE UNSTRUCTURED layers4.ugi
 END
 
-GEOMECHANICS_SUBSURFACE_COUPLING TWO_WAY_COUPLED
-  MAPPING_FILE layers4.mapping
+GEOMECHANICS_MAPPING_FILE layers4.mapping
+
+GEOMECHANICS_TIME
+  COUPLING_TIMESTEP_SIZE 0.1d0 hour
 END
 
 # ---------------- Geomechanics regions ----------------------
@@ -432,23 +433,4 @@ END
 
 GEOMECHANICS_OUTPUT
   FORMAT HDF5
-  VARIABLES
-    DISPLACEMENT_X
-    DISPLACEMENT_Y
-    DISPLACEMENT_Z
-    STRAIN_XX
-    STRAIN_YY
-    STRAIN_ZZ
-    STRAIN_XY
-    STRAIN_XZ
-    STRAIN_YZ
-    STRESS_XX
-    STRESS_YY
-    STRESS_ZZ
-    STRESS_XY
-    STRESS_XZ
-    STRESS_YZ
-  /
-END
-
 END
