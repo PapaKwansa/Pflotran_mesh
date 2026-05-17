@@ -251,7 +251,6 @@ END
 
 END_SUBSURFACE
 
-
 # ============================================================
 # GEOMECHANICS
 # ============================================================
@@ -430,7 +429,8 @@ END
 # Top is intentionally left free.
 
 # ---------------- Output -------------------------------------
-
+# Keep this empty for now; your build is rejecting VARIABLES here.
 GEOMECHANICS_OUTPUT
-  FORMAT HDF5
 END
+
+END_GEOMECHANICS
