@@ -23,6 +23,19 @@ SIMULATION
 END
 
 # ============================================================
+# TIME FUNCTION (GLOBAL)
+# ============================================================
+TIME_FUNCTION inj_ramp
+  TYPE PIECEWISE_LINEAR
+  DATA
+    0.0     0.0
+    0.01    0.1
+    0.05    0.5
+    0.10    1.0
+  /
+END
+
+# ============================================================
 # SUBSURFACE FLOW
 # ============================================================
 SUBSURFACE
@@ -197,6 +210,7 @@ FLOW_CONDITION injection
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
   RATE 1.9d-3 m^3/s
+  TIME_FUNCTION inj_ramp
 END
 
 #==============================================================================
