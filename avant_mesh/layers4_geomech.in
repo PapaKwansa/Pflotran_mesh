@@ -2,45 +2,46 @@
 # PFLOTRAN: FLOW + POROELASTIC GEOMECHANICS
 # ============================================================
 SIMULATION
-  SIMULATION_TYPE GEOMECHANICS_SUBSURFACE
+  SIMULATION_TYPE SUBSURFACE
 
   PROCESS_MODELS
     SUBSURFACE_FLOW flow
       MODE RICHARDS
     /
-
-    GEOMECHANICS_SUBSURFACE geomech
+    SUBSURFACE_GEOMECHANICS geomech
       OPTIONS
-        FLOW_COUPLING ONE_WAY_COUPLED
+        FLOW_COUPLING TWO_WAY_COUPLED
       /
     /
   /
+
+  CHECKPOINT
+    PERIODIC TIME 1.d0 hour
+    FORMAT HDF5
+    TIME_UNITS hour
+  /
 END
-
-
-
 
 # ============================================================
 # SUBSURFACE FLOW
 # ============================================================
-
 SUBSURFACE
 
-#============================================================================== 
+#==============================================================================
 # Grid
 #==============================================================================
 GRID
   TYPE UNSTRUCTURED_EXPLICIT layers4.uge
 END
 
-#============================================================================== 
+#==============================================================================
 # Numerical controls
 #==============================================================================
 NUMERICAL_METHODS FLOW
   TIMESTEPPER
     INITIAL_TIMESTEP_SIZE 1.d-7 day
     MAXIMUM_TIMESTEP_SIZE 1.d-5 day
-    PRESSURE_CHANGE_GOVERNOR 2.d3
+    PRESSURE_CHANGE_GOVERNOR 2.d2
     SATURATION_CHANGE_GOVERNOR 1.d-2
     TIMESTEP_REDUCTION_FACTOR 0.5d0
     MAXIMUM_CONSECUTIVE_TS_CUTS 20
@@ -50,7 +51,7 @@ NUMERICAL_METHODS FLOW
   /
 END
 
-#============================================================================== 
+#==============================================================================
 # Time control
 #==============================================================================
 TIME
@@ -59,7 +60,7 @@ END
 
 REFERENCE_PRESSURE 5.3E6
 
-#============================================================================== 
+#==============================================================================
 # Material properties
 #==============================================================================
 MATERIAL_PROPERTY overburden
@@ -98,7 +99,7 @@ MATERIAL_PROPERTY underburden
   /
 END
 
-#============================================================================== 
+#==============================================================================
 # Hydraulic relations
 #==============================================================================
 CHARACTERISTIC_CURVES default
@@ -113,15 +114,14 @@ CHARACTERISTIC_CURVES default
   /
 END
 
-#============================================================================== 
+#==============================================================================
 # OUTPUT
 #==============================================================================
 OUTPUT
   ACKNOWLEDGE_VTK_FLAW
 
   SNAPSHOT_FILE
-    TIMES hour 0.d0 1.d0 2.d0 3.d0 4.d0 5.d0 6.d0 7.d0 8.d0 9.d0 \
-          10.d0 11.d0 12.d0 13.d0 14.d0 15.d0 16.d0 17.d0 18.d0 19.d0
+    TIMES hour 0.d0 1.d0 2.d0 3.d0 4.d0 5.d0 6.d0 7.d0 8.d0 9.d0 10.d0 11.d0 12.d0 13.d0 14.d0 15.d0 16.d0 17.d0 18.d0 19.d0
     FORMAT VTK
     VARIABLES
       LIQUID_PRESSURE
@@ -130,7 +130,7 @@ OUTPUT
   /
 END
 
-#============================================================================== 
+#==============================================================================
 # Regions
 #==============================================================================
 REGION All
@@ -168,7 +168,7 @@ REGION wellbore
   FILE wellbore.vset
 END
 
-#============================================================================== 
+#==============================================================================
 # Flow conditions
 #==============================================================================
 FLOW_CONDITION initial
@@ -199,7 +199,7 @@ FLOW_CONDITION injection
   RATE 1.9d-3 m^3/s
 END
 
-#============================================================================== 
+#==============================================================================
 # Couplers
 #==============================================================================
 INITIAL_CONDITION
@@ -242,7 +242,7 @@ BOUNDARY_CONDITION bottom_bc
   REGION bottom
 END
 
-#============================================================================== 
+#==============================================================================
 # Materials
 #==============================================================================
 STRATA
@@ -255,182 +255,177 @@ END_SUBSURFACE
 # GEOMECHANICS
 # ============================================================
 GEOMECHANICS
+  GEOMECHANICS_MAPPING_FILE layers4.mapping
 
-GEOMECHANICS_GRID
-  TYPE UNSTRUCTURED layers4.ugi
-END
+  GEOMECHANICS_GRID
+    TYPE UNSTRUCTURED layers4.ugi
+  END
 
-GEOMECHANICS_MAPPING_FILE layers4.mapping
+  GEOMECHANICS_TIME
+    COUPLING_TIMESTEP_SIZE 0.1d0 hour
+  END
 
-GEOMECHANICS_TIME
-  COUPLING_TIMESTEP_SIZE 0.1d0 hour
-END
-
-# ---------------- Geomechanics regions ----------------------
-
-GEOMECHANICS_REGION overburden
-  FILE overburden.vset
-END
-
-GEOMECHANICS_REGION bartlesville_sand
-  FILE bartlesville_sand.vset
-END
-
-GEOMECHANICS_REGION basal_layer
-  FILE basal_layer.vset
-END
-
-GEOMECHANICS_REGION underburden
-  FILE underburden.vset
-END
-
-GEOMECHANICS_REGION west
-  FILE west.vset
-END
-
-GEOMECHANICS_REGION east
-  FILE east.vset
-END
-
-GEOMECHANICS_REGION north
-  FILE north.vset
-END
-
-GEOMECHANICS_REGION south
-  FILE south.vset
-END
-
-GEOMECHANICS_REGION bottom
-  FILE bottom.vset
-END
-
-GEOMECHANICS_REGION top
-  FILE top.vset
-END
-
-# ---------------- Geomechanics material properties -----------
-
-GEOMECHANICS_MATERIAL_PROPERTY overburden
-  ID 1
-  ROCK_DENSITY 2500.d0
-  YOUNGS_MODULUS 2.0d10
-  POISSONS_RATIO 0.28
-  BIOT_COEFFICIENT 0.7
-END
-
-GEOMECHANICS_MATERIAL_PROPERTY bartlesville_sand
-  ID 2
-  ROCK_DENSITY 2500.d0
-  YOUNGS_MODULUS 9.0d9
-  POISSONS_RATIO 0.25
-  BIOT_COEFFICIENT 0.9
-END
-
-GEOMECHANICS_MATERIAL_PROPERTY basal_layer
-  ID 3
-  ROCK_DENSITY 2500.d0
-  YOUNGS_MODULUS 2.5d10
-  POISSONS_RATIO 0.28
-  BIOT_COEFFICIENT 0.7
-END
-
-GEOMECHANICS_MATERIAL_PROPERTY underburden
-  ID 4
-  ROCK_DENSITY 2500.d0
-  YOUNGS_MODULUS 2.0d10
-  POISSONS_RATIO 0.28
-  BIOT_COEFFICIENT 0.7
-END
-
-# ---------------- Geomechanics strata -----------------------
-
-GEOMECHANICS_STRATA
+  # ---------------- Geomechanics regions ----------------------
   GEOMECHANICS_REGION overburden
-  GEOMECHANICS_MATERIAL overburden
-END
+    FILE overburden.vset
+  END
 
-GEOMECHANICS_STRATA
   GEOMECHANICS_REGION bartlesville_sand
-  GEOMECHANICS_MATERIAL bartlesville_sand
-END
+    FILE bartlesville_sand.vset
+  END
 
-GEOMECHANICS_STRATA
   GEOMECHANICS_REGION basal_layer
-  GEOMECHANICS_MATERIAL basal_layer
-END
+    FILE basal_layer.vset
+  END
 
-GEOMECHANICS_STRATA
   GEOMECHANICS_REGION underburden
-  GEOMECHANICS_MATERIAL underburden
-END
+    FILE underburden.vset
+  END
 
-# ---------------- Boundary conditions ------------------------
-
-GEOMECHANICS_CONDITION west_roller
-  TYPE
-    DISPLACEMENT_X DIRICHLET
-  /
-  DISPLACEMENT_X 0.d0
-END
-
-GEOMECHANICS_CONDITION east_roller
-  TYPE
-    DISPLACEMENT_X DIRICHLET
-  /
-  DISPLACEMENT_X 0.d0
-END
-
-GEOMECHANICS_CONDITION north_roller
-  TYPE
-    DISPLACEMENT_Y DIRICHLET
-  /
-  DISPLACEMENT_Y 0.d0
-END
-
-GEOMECHANICS_CONDITION south_roller
-  TYPE
-    DISPLACEMENT_Y DIRICHLET
-  /
-  DISPLACEMENT_Y 0.d0
-END
-
-GEOMECHANICS_CONDITION bottom_fix
-  TYPE
-    DISPLACEMENT_Z DIRICHLET
-  /
-  DISPLACEMENT_Z 0.d0
-END
-
-GEOMECHANICS_BOUNDARY_CONDITION west_bc
-  GEOMECHANICS_CONDITION west_roller
   GEOMECHANICS_REGION west
-END
+    FILE west.vset
+  END
 
-GEOMECHANICS_BOUNDARY_CONDITION east_bc
-  GEOMECHANICS_CONDITION east_roller
   GEOMECHANICS_REGION east
-END
+    FILE east.vset
+  END
 
-GEOMECHANICS_BOUNDARY_CONDITION north_bc
-  GEOMECHANICS_CONDITION north_roller
   GEOMECHANICS_REGION north
-END
+    FILE north.vset
+  END
 
-GEOMECHANICS_BOUNDARY_CONDITION south_bc
-  GEOMECHANICS_CONDITION south_roller
   GEOMECHANICS_REGION south
-END
+    FILE south.vset
+  END
 
-GEOMECHANICS_BOUNDARY_CONDITION bottom_bc
-  GEOMECHANICS_CONDITION bottom_fix
   GEOMECHANICS_REGION bottom
-END
+    FILE bottom.vset
+  END
 
-# Top is intentionally left free.
+  GEOMECHANICS_REGION top
+    FILE top.vset
+  END
 
-# ---------------- Output -------------------------------------
-# Keep this empty for now; your build is rejecting VARIABLES here.
-GEOMECHANICS_OUTPUT
-END
+  # ---------------- Geomechanics material properties ---------
+  GEOMECHANICS_MATERIAL_PROPERTY overburden
+    ID 1
+    ROCK_DENSITY 2500.d0
+    YOUNGS_MODULUS 2.0d10
+    POISSONS_RATIO 0.28
+    BIOT_COEFFICIENT 0.7
+  END
+
+  GEOMECHANICS_MATERIAL_PROPERTY bartlesville_sand
+    ID 2
+    ROCK_DENSITY 2500.d0
+    YOUNGS_MODULUS 9.0d9
+    POISSONS_RATIO 0.25
+    BIOT_COEFFICIENT 0.9
+  END
+
+  GEOMECHANICS_MATERIAL_PROPERTY basal_layer
+    ID 3
+    ROCK_DENSITY 2500.d0
+    YOUNGS_MODULUS 2.5d10
+    POISSONS_RATIO 0.28
+    BIOT_COEFFICIENT 0.7
+  END
+
+  GEOMECHANICS_MATERIAL_PROPERTY underburden
+    ID 4
+    ROCK_DENSITY 2500.d0
+    YOUNGS_MODULUS 2.0d10
+    POISSONS_RATIO 0.28
+    BIOT_COEFFICIENT 0.7
+  END
+
+  # ---------------- Geomechanics strata -----------------------
+  GEOMECHANICS_STRATA
+    GEOMECHANICS_REGION overburden
+    GEOMECHANICS_MATERIAL overburden
+  END
+
+  GEOMECHANICS_STRATA
+    GEOMECHANICS_REGION bartlesville_sand
+    GEOMECHANICS_MATERIAL bartlesville_sand
+  END
+
+  GEOMECHANICS_STRATA
+    GEOMECHANICS_REGION basal_layer
+    GEOMECHANICS_MATERIAL basal_layer
+  END
+
+  GEOMECHANICS_STRATA
+    GEOMECHANICS_REGION underburden
+    GEOMECHANICS_MATERIAL underburden
+  END
+
+  # ---------------- Boundary conditions ------------------------
+  GEOMECHANICS_CONDITION west_roller
+    TYPE
+      DISPLACEMENT_X DIRICHLET
+    /
+    DISPLACEMENT_X 0.d0
+  END
+
+  GEOMECHANICS_CONDITION east_roller
+    TYPE
+      DISPLACEMENT_X DIRICHLET
+    /
+    DISPLACEMENT_X 0.d0
+  END
+
+  GEOMECHANICS_CONDITION north_roller
+    TYPE
+      DISPLACEMENT_Y DIRICHLET
+    /
+    DISPLACEMENT_Y 0.d0
+  END
+
+  GEOMECHANICS_CONDITION south_roller
+    TYPE
+      DISPLACEMENT_Y DIRICHLET
+    /
+    DISPLACEMENT_Y 0.d0
+  END
+
+  GEOMECHANICS_CONDITION bottom_fix
+    TYPE
+      DISPLACEMENT_Z DIRICHLET
+    /
+    DISPLACEMENT_Z 0.d0
+  END
+
+  GEOMECHANICS_BOUNDARY_CONDITION west_bc
+    GEOMECHANICS_CONDITION west_roller
+    GEOMECHANICS_REGION west
+  END
+
+  GEOMECHANICS_BOUNDARY_CONDITION east_bc
+    GEOMECHANICS_CONDITION east_roller
+    GEOMECHANICS_REGION east
+  END
+
+  GEOMECHANICS_BOUNDARY_CONDITION north_bc
+    GEOMECHANICS_CONDITION north_roller
+    GEOMECHANICS_REGION north
+  END
+
+  GEOMECHANICS_BOUNDARY_CONDITION south_bc
+    GEOMECHANICS_CONDITION south_roller
+    GEOMECHANICS_REGION south
+  END
+
+  GEOMECHANICS_BOUNDARY_CONDITION bottom_bc
+    GEOMECHANICS_CONDITION bottom_fix
+    GEOMECHANICS_REGION bottom
+  END
+
+  # Top is intentionally left free.
+
+  # ---------------- Geomechanics output -----------------------
+  GEOMECHANICS_OUTPUT
+    FORMAT HDF5
+  END
 
 END_GEOMECHANICS
