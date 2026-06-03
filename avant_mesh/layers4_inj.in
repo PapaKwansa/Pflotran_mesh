@@ -160,17 +160,26 @@ END
 #==============================================================================
 FLOW_CONDITION initial
   TYPE
-    LIQUID_PRESSURE DIRICHLET
+    LIQUID_PRESSURE HYDROSTATIC
   /
-  LIQUID_PRESSURE 5.3E6
+  DATUM 0.d0 0.d0 0.d0              # top of model
+  LIQUID_PRESSURE 101325.d0         # ~1 atm at top
+  GRADIENT
+    LIQUID_PRESSURE 0.d0 0.d0 9.81d3   # hydrostatic gradient (Pa/m)
+  /
 END
 
 FLOW_CONDITION far_field_pressure
   TYPE
-    LIQUID_PRESSURE DIRICHLET
+    LIQUID_PRESSURE HYDROSTATIC
   /
-  LIQUID_PRESSURE 5.3E6
+  DATUM 0.d0 0.d0 0.d0
+  LIQUID_PRESSURE 101325.d0
+  GRADIENT
+    LIQUID_PRESSURE 0.d0 0.d0 9.81d3
+  /
 END
+
 
 FLOW_CONDITION noflow
   TYPE
