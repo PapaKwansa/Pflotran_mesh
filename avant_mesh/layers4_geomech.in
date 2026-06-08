@@ -10,7 +10,7 @@ SIMULATION
     /
     SUBSURFACE_GEOMECHANICS geomech
       OPTIONS
-        FLOW_COUPLING TWO_WAY_COUPLED
+        FLOW_COUPLING ONE_WAY_COUPLED
       /
     /
   /
@@ -117,6 +117,19 @@ END
 #==============================================================================
 # NO OUTPUT FOR FLOW...HAVE THAT ALREADY
 #==============================================================================
+OUTPUT
+  ACKNOWLEDGE_VTK_FLAW
+
+  SNAPSHOT_FILE
+    TIMES hour 0.d0 1.d0 2.d0 3.d0 4.d0 5.d0 6.d0 7.d0 8.d0 9.d0 \
+          10.d0 11.d0 12.d0 13.d0 14.d0 15.d0 16.d0 17.d0 18.d0 19.d0
+    FORMAT HDF5
+    VARIABLES
+      LIQUID_PRESSURE
+      MATERIAL_ID
+    /
+  /
+END
 #==============================================================================
 # Regions
 #==============================================================================
@@ -160,17 +173,26 @@ END
 #==============================================================================
 FLOW_CONDITION initial
   TYPE
-    LIQUID_PRESSURE DIRICHLET
+    LIQUID_PRESSURE HYDROSTATIC
   /
-  LIQUID_PRESSURE 5.3E6
+  DATUM 0.d0 0.d0 0.d0              # top of model
+  LIQUID_PRESSURE 101325.d0         # ~1 atm at top
+  GRADIENT
+    LIQUID_PRESSURE 0.d0 0.d0 9.81d3   # hydrostatic gradient (Pa/m)
+  /
 END
 
 FLOW_CONDITION far_field_pressure
   TYPE
-    LIQUID_PRESSURE DIRICHLET
+    LIQUID_PRESSURE HYDROSTATIC
   /
-  LIQUID_PRESSURE 5.3E6
+  DATUM 0.d0 0.d0 0.d0
+  LIQUID_PRESSURE 101325.d0
+  GRADIENT
+    LIQUID_PRESSURE 0.d0 0.d0 9.81d3
+  /
 END
+
 
 FLOW_CONDITION noflow
   TYPE
@@ -179,6 +201,7 @@ FLOW_CONDITION noflow
   LIQUID_FLUX 0.d0
 END
 
+# 🔥 Injection (START SMALL)
 FLOW_CONDITION injection
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME

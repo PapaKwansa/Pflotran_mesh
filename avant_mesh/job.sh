@@ -1,22 +1,30 @@
 #!/bin/bash
-#SBATCH --job-name=pflotran
-#SBATCH --nodes=1
-#SBATCH --ntasks=64
+#SBATCH --job-name=pflotran_geomech
+#SBATCH --partition=work1
+#SBATCH --nodes=2
+#SBATCH --tasks-per-node=64
 #SBATCH --mem=250G
-#SBATCH --time=48:00:00
+#SBATCH --time=72:00:00
 #SBATCH --output=pflotran_%j.out
 #SBATCH --error=pflotran_%j.err
 
 set -euo pipefail
 
-cd /home/harhin/Pflotran_mesh/avant_mesh
+module purge
+module load spack
+spack load pflotran@5.0.0
 
-# Stage 1: injection
-/home/harhin/PFLOTRAN/petsc/arch-linux-c-opt/bin/mpirun -np 64 \
-  /home/harhin/PFLOTRAN/petsc/pflotran/src/pflotran/pflotran \
-  -input_prefix layers4_inj
+cd /scratch/$USER/avant_mesh_test
 
-# Stage 2: geomech
-/home/harhin/PFLOTRAN/petsc/arch-linux-c-opt/bin/mpirun -np 64 \
-  /home/harhin/PFLOTRAN/petsc/pflotran/src/pflotran/pflotran \
-  -input_prefix layers4_geomech
+mpiexec -n $SLURM_NTASKS \
+    pflotran \
+    -input_prefix layers4_geomech
+
+OUTDIR=$HOME/pflotran_results/${SLURM_JOB_ID}
+
+mkdir -p $OUTDIR
+
+rsync -av layers4_geomech* $OUTDIR/
+
+echo "Results copied to:"
+echo "$OUTDIR"
