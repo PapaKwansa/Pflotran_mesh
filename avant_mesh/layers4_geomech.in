@@ -15,11 +15,7 @@ SIMULATION
     /
   /
 
-  CHECKPOINT
-    PERIODIC TIME 1.d0 hour
-    FORMAT HDF5
-    TIME_UNITS hour
-  /
+
 END
 
 # ============================================================
@@ -39,10 +35,10 @@ END
 #==============================================================================
 NUMERICAL_METHODS FLOW
   TIMESTEPPER
-    INITIAL_TIMESTEP_SIZE 1.d-7 day
-    MAXIMUM_TIMESTEP_SIZE 1.d-5 day
-    PRESSURE_CHANGE_GOVERNOR 2.d2
-    SATURATION_CHANGE_GOVERNOR 1.d-2
+    INITIAL_TIMESTEP_SIZE 1.d-6 day
+    MAXIMUM_TIMESTEP_SIZE 5.d-4 day
+    PRESSURE_CHANGE_GOVERNOR 5.d2
+    SATURATION_CHANGE_GOVERNOR 5.d-2
     TIMESTEP_REDUCTION_FACTOR 0.5d0
     MAXIMUM_CONSECUTIVE_TS_CUTS 20
   /
@@ -50,6 +46,7 @@ NUMERICAL_METHODS FLOW
     MAXIMUM_NUMBER_OF_ITERATIONS 25
   /
 END
+
 
 #==============================================================================
 # Time control
@@ -121,8 +118,7 @@ OUTPUT
   ACKNOWLEDGE_VTK_FLAW
 
   SNAPSHOT_FILE
-    TIMES hour 0.d0 1.d0 2.d0 3.d0 4.d0 5.d0 6.d0 7.d0 8.d0 9.d0 \
-          10.d0 11.d0 12.d0 13.d0 14.d0 15.d0 16.d0 17.d0 18.d0 19.d0
+    TIMES hour 19.d0
     FORMAT HDF5
     VARIABLES
       LIQUID_PRESSURE
@@ -434,7 +430,7 @@ GEOMECHANICS
 
   # ---------------- Geomechanics output -----------------------
   GEOMECHANICS_OUTPUT
-    TIMES hour 1.d0 2.d0 3.d0 4.d0 5.d0 6.d0 7.d0 8.d0 9.d0 10.d0 11.d0 12.d0 13.d0 14.d0 15.d0 16.d0 17.d0 18.d0 19.d0
+    TIMES hour 19.d0
     FORMAT HDF5
   END
 
