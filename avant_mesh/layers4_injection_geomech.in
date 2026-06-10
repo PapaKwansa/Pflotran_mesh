@@ -266,7 +266,7 @@ GEOMECHANICS
   END
 
   GEOMECHANICS_TIME
-    COUPLING_TIMESTEP_SIZE 0.1d0 hour
+    COUPLING_TIMESTEP_SIZE 0.01d0 hour
   END
 
   # ---------------- Geomechanics regions ----------------------
