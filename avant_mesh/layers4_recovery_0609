@@ -5,8 +5,11 @@ SIMULATION
       MODE RICHARDS
     /
   /
+  RESTART
+    FILENAME layers4-19hour-restart.h5
+  /
   CHECKPOINT
-    PERIODIC TIME 1.d0 hour
+    PERIODIC TIME 96.d0 hour
     FORMAT HDF5
     TIME_UNITS hour
   /
@@ -106,14 +109,7 @@ END
 #==============================================================================
 OUTPUT
   SNAPSHOT_FILE
-    TIMES hour 20.d0 21.d0 22.d0 23.d0 24.d0 25.d0 26.d0 27.d0 28.d0 29.d0 \
-          30.d0 31.d0 32.d0 33.d0 34.d0 35.d0 36.d0 37.d0 38.d0 39.d0 \
-          40.d0 41.d0 42.d0 43.d0 44.d0 45.d0 46.d0 47.d0 48.d0 49.d0 \
-          50.d0 51.d0 52.d0 53.d0 54.d0 55.d0 56.d0 57.d0 58.d0 59.d0 \
-          60.d0 61.d0 62.d0 63.d0 64.d0 65.d0 66.d0 67.d0 68.d0 69.d0 \
-          70.d0 71.d0 72.d0 73.d0 74.d0 75.d0 76.d0 77.d0 78.d0 79.d0 \
-          80.d0 81.d0 82.d0 83.d0 84.d0 85.d0 86.d0 87.d0 88.d0 89.d0 \
-          90.d0 91.d0 92.d0 93.d0 94.d0 95.d0 96.d0
+    TIMES hour 96.d0
     FORMAT HDF5
     VARIABLES
       LIQUID_PRESSURE
