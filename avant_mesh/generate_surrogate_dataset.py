@@ -4,7 +4,7 @@ Build a PFLOTRAN surrogate-training dataset using Latin hypercube sampling.
 
 What it does:
 1) Samples log10(permeability) values for the four geologic units.
-2) Copies your injection and recovery decks into a sample-specific run folder.
+2) Copies the injection and recovery decks into a sample-specific run folder.
 3) Replaces the PERM_ISO values in both decks for that sample.
 4) Runs PFLOTRAN for injection, then recovery.
 5) Extracts wellbore pressure and geomechanics observables from HDF5 outputs.
@@ -70,10 +70,10 @@ PRESSURE_DATASET_CANDIDATES = [
 # These are intentionally modest starting ranges: +/- 1 order of magnitude
 # around your current values. Tighten or widen as needed.
 DEFAULT_LOG10_BOUNDS = {
-    "overburden": (-18.5, -17.5),
+    "overburden": (-18.0, -16.0),
     "bartlesville_sand": (-14.0, -12.0),
     "basal_layer": (-19.0, -17.0),
-    "underburden": (-18.5, -17.5),
+    "underburden": (-18.0, -16.0),
 }
 
 DEFAULT_BASE_PERM = {

@@ -14,6 +14,11 @@ SIMULATION
       /
     /
   /
+  CHECKPOINT
+  PERIODIC TIME 19.d0 hour
+  FORMAT HDF5
+  TIME_UNITS hour
+ /
 
 END
 
