@@ -14,11 +14,6 @@ SIMULATION
       /
     /
   /
-  CHECKPOINT
-    PERIODIC TIME 19.d0 hour
-    FORMAT HDF5
-    TIME_UNITS hour
-  /
 
 END
 
@@ -56,7 +51,7 @@ END
 # Time control
 #==============================================================================
 TIME
-  FINAL_TIME 19.d0 hour
+  FINAL_TIME 96.d0 hour
 END
 
 REFERENCE_PRESSURE 5.3E6
@@ -206,7 +201,15 @@ FLOW_CONDITION injection
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
-  RATE 1.9d-3 m^3/s
+  SYNC_TIMESTEP_WITH_UPDATE
+  RATE_LIST
+    TIME_UNITS hour
+    DATA_UNITS m^3/s
+    0.d0  1.9d-3
+    19.d0 0.d0
+   /
+  END
+
 END
 #==============================================================================
 # Couplers
