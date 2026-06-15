@@ -126,7 +126,7 @@ def normalize_name(name: str) -> str:
 
 def replace_perm_iso_in_block(text: str, material_name: str, perm_value: float) -> str:
     """Replace PERM_ISO in the MATERIAL_PROPERTY block for one material."""
-    pattern = rf"(MATERIAL_PROPERTY\s+{re.escape(material_name)}.*?PERM_ISO\s+)([0-9eE+\-.]+)(\s*/)"
+    pattern = rf"(MATERIAL_PROPERTY\s+{re.escape(material_name)}.*?PERM_ISO\s+)([0-9eEdD+\-.]+)(\s*/)"
     match = re.search(pattern, text, flags=re.DOTALL)
     if not match:
         raise RuntimeError(f"Could not find PERM_ISO for material '{material_name}'.")
@@ -311,6 +311,7 @@ def prepare_sample_run_dir(
 
     static_files = [
         "layers4.uge",
+        "layers4.ugi",
         "layers4.mapping",
         "layers4_material_ids.h5",
         "wellbore.vset",
