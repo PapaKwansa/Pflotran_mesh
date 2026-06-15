@@ -1,5 +1,5 @@
 # ============================================================
-# PFLOTRAN: FLOW + POROELASTIC GEOMECHANICS
+# PFLOTRAN: FLOW + POROELASTIC GEOMECHANICS (INJECTION + RECOVERY)
 # ============================================================
 SIMULATION
   SIMULATION_TYPE SUBSURFACE
@@ -14,7 +14,6 @@ SIMULATION
       /
     /
   /
-
 END
 
 # ============================================================
@@ -45,7 +44,6 @@ NUMERICAL_METHODS FLOW
     MAXIMUM_NUMBER_OF_ITERATIONS 25
   /
 END
-
 
 #==============================================================================
 # Time control
@@ -111,13 +109,13 @@ CHARACTERISTIC_CURVES default
 END
 
 #==============================================================================
-# NO OUTPUT FOR FLOW...HAVE THAT ALREADY
+# Flow output (early injection window only)
 #==============================================================================
 OUTPUT
   ACKNOWLEDGE_VTK_FLAW
 
   SNAPSHOT_FILE
-    TIMES hour 3.d0 6.d0 9.d0 12.d0 15.d0 17.d0
+    TIMES hour 3.d0 6.d0 9.d0 12.d0 15.d0 17.d0 19.d0 19.02d0 19.05d0 20.d0 22.d0 24.d0 48.d0 72.d0 96.d0
     FORMAT HDF5
     VARIABLES
       LIQUID_PRESSURE
@@ -125,6 +123,7 @@ OUTPUT
     /
   /
 END
+
 #==============================================================================
 # Regions
 #==============================================================================
@@ -170,10 +169,10 @@ FLOW_CONDITION initial
   TYPE
     LIQUID_PRESSURE HYDROSTATIC
   /
-  DATUM 0.d0 0.d0 0.d0              # top of model
-  LIQUID_PRESSURE 101325.d0         # ~1 atm at top
+  DATUM 0.d0 0.d0 0.d0
+  LIQUID_PRESSURE 101325.d0
   GRADIENT
-    LIQUID_PRESSURE 0.d0 0.d0 9.81d3   # hydrostatic gradient (Pa/m)
+    LIQUID_PRESSURE 0.d0 0.d0 9.81d3
   /
 END
 
@@ -188,7 +187,6 @@ FLOW_CONDITION far_field_pressure
   /
 END
 
-
 FLOW_CONDITION noflow
   TYPE
     LIQUID_FLUX NEUMANN
@@ -196,21 +194,20 @@ FLOW_CONDITION noflow
   LIQUID_FLUX 0.d0
 END
 
-# 🔥 Injection (START SMALL)
+# Injection: 0–19 h at 1.9e-3 m^3/s, then shut-in
 FLOW_CONDITION injection
   TYPE
     RATE SCALED_VOLUMETRIC_RATE VOLUME
   /
   SYNC_TIMESTEP_WITH_UPDATE
-  RATE_LIST
+  RATE LIST
     TIME_UNITS hour
     DATA_UNITS m^3/s
-    0.d0  1.9d-3
-    19.d0 0.d0
-   /
-  END
-
+    0.d0   1.9d-3
+    19.d0  0.d0
+  /
 END
+
 #==============================================================================
 # Couplers
 #==============================================================================
