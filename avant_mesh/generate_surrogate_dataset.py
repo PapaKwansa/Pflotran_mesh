@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Build a PFLOTRAN surrogate-training dataset from a single continuous run.
+"""
+Build a PFLOTRAN surrogate-training dataset from a single continuous run.
 
-This version matches the current workflow:
-- one coupled PFLOTRAN deck per sample (injection 0-19 h, shut-in 19-96 h)
-- no checkpoint/restart handoff
-- one flow HDF5 output and one geomechanics HDF5 output per sample
+Workflow:
+- one coupled PFLOTRAN deck per sample
+- injection active from 0 to 19 h
+- shut-in from 19 to 96 h in the same run
+- no checkpoint / restart handoff
 - Latin hypercube sampling over the four layer permeabilities
 
-The script expects a template deck similar to `layers4_geomech.in` and patches
-its MATERIAL_PROPERTY PERM_ISO values for each sample.
+This version is Python 3.6 compatible:
+- no SciPy dependency
+- no `from __future__ import annotations`
+- no `X | Y` type syntax
 """
-
-from __future__ import annotations
 
 import argparse
 import csv
@@ -22,16 +24,15 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import h5py
 import numpy as np
-from scipy.stats import qmc
 
 
 MATERIALS = ["overburden", "bartlesville_sand", "basal_layer", "underburden"]
 
-# Wellbore indices previously identified for the North Avant model.
+# Wellbore HDF5 indices previously identified for the North Avant model.
 WELLBORE_H5_INDICES = np.array([
     354057, 354058, 354059, 354060, 354061, 354062, 354063, 354064,
     375524, 375525, 375526, 375527, 375528, 375529, 375530, 375531,
@@ -50,14 +51,14 @@ PRESSURE_DATASET_CANDIDATES = [
     "Liquid Pressure",
 ]
 
-DEFAULT_LOG10_BOUNDS: Dict[str, Tuple[float, float]] = {
+DEFAULT_LOG10_BOUNDS = {
     "overburden": (-18.0, -16.0),
     "bartlesville_sand": (-14.0, -12.0),
     "basal_layer": (-19.0, -17.0),
     "underburden": (-18.0, -16.0),
 }
 
-DEFAULT_BASE_PERM: Dict[str, float] = {
+DEFAULT_BASE_PERM = {
     "overburden": 5.0e-18,
     "bartlesville_sand": 1.0e-13,
     "basal_layer": 2.0e-18,
@@ -66,34 +67,43 @@ DEFAULT_BASE_PERM: Dict[str, float] = {
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(
-        description=(
-            "Generate a PFLOTRAN surrogate dataset from a single continuous "
-            "injection->shut-in run."
-        )
+    parser = argparse.ArgumentParser(
+        description="Generate a PFLOTRAN surrogate dataset from a single continuous injection->shut-in run."
     )
-    p.add_argument("--model-dir", type=str, default=".",
-                   help="Directory containing the PFLOTRAN input files.")
-    p.add_argument("--out-dir", type=str, default="./surrogate_dataset",
-                   help="Output dataset directory.")
-    p.add_argument("--n-samples", type=int, default=20,
-                   help="Number of Latin hypercube samples.")
-    p.add_argument("--seed", type=int, default=1234,
-                   help="Random seed for the LHS sampler.")
-    p.add_argument("--nprocs", type=int, default=int(os.environ.get("SLURM_NTASKS", "64")),
-                   help="MPI ranks to use per PFLOTRAN run.")
-    p.add_argument("--pflotran-bin", type=str,
-                   default=os.environ.get("PFLOTRAN_BIN", "pflotran"),
-                   help="Path to the PFLOTRAN executable.")
-    p.add_argument("--mpiexec", type=str, default="mpiexec",
-                   help="MPI launcher command.")
-    p.add_argument("--deck-template", type=str, default="layers4_geomech.in",
-                   help="Template deck filename to patch for each sample.")
-    p.add_argument("--copy-static", action="store_true",
-                   help="Copy static files instead of symlinking them.")
-    p.add_argument("--keep-runs", action="store_true",
-                   help="Keep sample run directories even after successful extraction.")
-    return p.parse_args()
+    parser.add_argument("--model-dir", type=str, default=".", help="Directory containing the PFLOTRAN input files.")
+    parser.add_argument("--out-dir", type=str, default="./surrogate_dataset", help="Output dataset directory.")
+    parser.add_argument("--n-samples", type=int, default=20, help="Number of Latin hypercube samples.")
+    parser.add_argument("--seed", type=int, default=1234, help="Random seed for the LHS sampler.")
+    parser.add_argument(
+        "--nprocs",
+        type=int,
+        default=int(os.environ.get("SLURM_NTASKS", "64")),
+        help="MPI ranks to use per PFLOTRAN run.",
+    )
+    parser.add_argument(
+        "--pflotran-bin",
+        type=str,
+        default=os.environ.get("PFLOTRAN_BIN", "pflotran"),
+        help="Path to the PFLOTRAN executable.",
+    )
+    parser.add_argument("--mpiexec", type=str, default="mpiexec", help="MPI launcher command.")
+    parser.add_argument(
+        "--deck-template",
+        type=str,
+        default="layers4_geomech.in",
+        help="Template deck filename to patch for each sample.",
+    )
+    parser.add_argument(
+        "--copy-static",
+        action="store_true",
+        help="Copy static files instead of symlinking them.",
+    )
+    parser.add_argument(
+        "--keep-runs",
+        action="store_true",
+        help="Keep sample run directories after successful extraction.",
+    )
+    return parser.parse_args()
 
 
 def safe_unlink(path: Path) -> None:
@@ -124,20 +134,22 @@ def normalize_name(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", name.lower())
 
 
-def replace_perm_iso_in_block(text: str, material_name: str, perm_value: float) -> str:
-    """Replace PERM_ISO in the MATERIAL_PROPERTY block for one material."""
-    pattern = rf"(MATERIAL_PROPERTY\s+{re.escape(material_name)}.*?PERM_ISO\s+)([0-9eEdD+\-.]+)(\s*/)"
-    match = re.search(pattern, text, flags=re.DOTALL)
-    if not match:
-        raise RuntimeError(f"Could not find PERM_ISO for material '{material_name}'.")
+def generate_lhs_unit_samples(n_samples: int, n_dim: int, seed: int) -> np.ndarray:
+    """
+    Simple Latin hypercube sampler using NumPy only.
+    Returns an (n_samples, n_dim) array with values in [0, 1).
+    """
+    rng = np.random.RandomState(seed)
+    u = np.empty((n_samples, n_dim), dtype=float)
 
-    def repl(m: re.Match) -> str:
-        return f"{m.group(1)}{perm_value:.6e}{m.group(3)}"
+    for j in range(n_dim):
+        # One point in each interval, then shuffle.
+        cut = np.linspace(0.0, 1.0, n_samples + 1)
+        pts = cut[:-1] + rng.rand(n_samples) * (cut[1:] - cut[:-1])
+        rng.shuffle(pts)
+        u[:, j] = pts
 
-    new_text, n = re.subn(pattern, repl, text, count=1, flags=re.DOTALL)
-    if n != 1:
-        raise RuntimeError(f"Expected exactly one replacement for material '{material_name}', got {n}.")
-    return new_text
+    return u
 
 
 def generate_lhs_log10_samples(
@@ -148,49 +160,91 @@ def generate_lhs_log10_samples(
     names = MATERIALS[:]
     lower = np.array([bounds_log10[m][0] for m in names], dtype=float)
     upper = np.array([bounds_log10[m][1] for m in names], dtype=float)
-    sampler = qmc.LatinHypercube(d=len(names), seed=seed)
-    unit = sampler.random(n=n_samples)
-    scaled = qmc.scale(unit, lower, upper)
+
+    unit = generate_lhs_unit_samples(n_samples=n_samples, n_dim=len(names), seed=seed)
+    scaled = lower + unit * (upper - lower)
     return scaled, names
 
 
-def parse_time_from_group_name(group_name: str) -> float | None:
-    """Parse strings like '0 Time 1.000000e+00 h'."""
-    m = re.search(r"Time\s+([+-]?\d*\.?\d+(?:[Ee][+-]?\d+)?)\s*h", group_name)
-    if not m:
-        return None
-    try:
-        return float(m.group(1))
-    except ValueError:
-        return None
+def replace_perm_iso_in_block(text: str, material_name: str, perm_value: float) -> str:
+    """
+    Replace the PERM_ISO line inside the MATERIAL_PROPERTY block for one material.
+
+    This is intentionally line-based and tolerant of Fortran 'd' notation.
+    """
+    lines = text.splitlines(True)
+    start = None
+    mat_pat = re.compile(r"^\s*MATERIAL_PROPERTY\s+{}\s*$".format(re.escape(material_name)))
+    end_pat = re.compile(r"^\s*END\s*$")
+    perm_pat = re.compile(r"^\s*PERM_ISO\b")
+
+    for i, line in enumerate(lines):
+        if mat_pat.match(line):
+            start = i
+            break
+
+    if start is None:
+        raise RuntimeError("Could not find MATERIAL_PROPERTY block for material '{}'.".format(material_name))
+
+    end = None
+    for j in range(start + 1, len(lines)):
+        if end_pat.match(lines[j]):
+            end = j
+            break
+
+    if end is None:
+        raise RuntimeError("Could not find END for MATERIAL_PROPERTY block '{}'.".format(material_name))
+
+    replaced = False
+    for k in range(start + 1, end):
+        if perm_pat.match(lines[k]):
+            indent = re.match(r"^(\s*)", lines[k]).group(1)
+            lines[k] = "{}PERM_ISO {:.6e}\n".format(indent, perm_value)
+            replaced = True
+            break
+
+    if not replaced:
+        raise RuntimeError("Could not find PERM_ISO for material '{}'.".format(material_name))
+
+    return "".join(lines)
 
 
 def find_time_groups(h5obj: h5py.File, dataset_candidates: Sequence[str]) -> List[Tuple[float, str]]:
-    """Return [(time_hours, group_path), ...] for time groups containing candidate datasets."""
-    groups: List[Tuple[float, str]] = []
+    """
+    Find time groups that contain one of the candidate datasets.
+    Returns [(time_hours, group_path), ...].
+    """
+    groups = []
     norm_cands = [normalize_name(c) for c in dataset_candidates]
 
-    def visitor(name: str, obj) -> None:
+    def visitor(name, obj):
         if not isinstance(obj, h5py.Group):
             return
         if "Time" not in name:
             return
 
         has_candidate = False
-        for leaf_name, _ in obj.items():
-            if normalize_name(leaf_name) in norm_cands:
+
+        # Check direct children.
+        for leaf_name in obj.keys():
+            leaf_norm = normalize_name(leaf_name)
+            if leaf_norm in norm_cands:
                 has_candidate = True
                 break
+
         if not has_candidate:
-            # search recursively one level deeper for names that contain candidates
-            def leaf_visitor(subname: str, subobj) -> None:
+            # Search recursively for a matching dataset name.
+            def leaf_visitor(subname, subobj):
                 nonlocal has_candidate
                 if has_candidate:
                     return
                 if isinstance(subobj, h5py.Dataset):
-                    leaf = normalize_name(Path(subname).name)
-                    if any(c == leaf or c in leaf or leaf in c for c in norm_cands):
-                        has_candidate = True
+                    leaf_norm = normalize_name(Path(subname).name)
+                    for cand in norm_cands:
+                        if cand == leaf_norm or cand in leaf_norm or leaf_norm in cand:
+                            has_candidate = True
+                            return
+
             obj.visititems(leaf_visitor)
 
         if not has_candidate:
@@ -200,31 +254,46 @@ def find_time_groups(h5obj: h5py.File, dataset_candidates: Sequence[str]) -> Lis
         if t is not None:
             groups.append((t, name))
 
+    def parse_time_from_group_name(group_name: str) -> Optional[float]:
+        m = re.search(r"Time\s+([+-]?\d*\.?\d+(?:[Ee][+-]?\d+)?)\s*h", group_name)
+        if not m:
+            return None
+        try:
+            return float(m.group(1))
+        except ValueError:
+            return None
+
     h5obj.visititems(visitor)
 
-    dedup: Dict[str, float] = {}
+    dedup = {}
     for t, p in groups:
         dedup[p] = t
+
     return sorted([(t, p) for p, t in dedup.items()], key=lambda x: x[0])
 
 
 def find_dataset_in_group(group: h5py.Group, candidates: Sequence[str]) -> np.ndarray:
-    """Return the first matching dataset inside a group (recursive search)."""
+    """
+    Return the first matching dataset inside a group (recursive search).
+    """
     norm_cands = [normalize_name(c) for c in candidates]
-    found: np.ndarray | None = None
+    found = None
 
-    def visitor(name: str, obj) -> None:
+    def visitor(name, obj):
         nonlocal found
         if found is not None:
             return
         if isinstance(obj, h5py.Dataset):
-            leaf = normalize_name(Path(name).name)
-            if any(c == leaf or c in leaf or leaf in c for c in norm_cands):
-                found = np.asarray(obj, dtype=float)
+            leaf_norm = normalize_name(Path(name).name)
+            for cand in norm_cands:
+                if cand == leaf_norm or cand in leaf_norm or leaf_norm in cand:
+                    found = np.asarray(obj, dtype=float)
+                    return
 
     group.visititems(visitor)
+
     if found is None:
-        raise KeyError(f"None of the candidate datasets were found: {candidates}")
+        raise KeyError("None of the candidate datasets were found: {}".format(candidates))
     return found
 
 
@@ -238,21 +307,23 @@ def compute_well_stats_at_time(arr: np.ndarray, well_idx: np.ndarray) -> Dict[st
 
 
 def extract_pressure_series(h5_path: Path, well_idx: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    with h5py.File(h5_path, "r") as f:
+    with h5py.File(str(h5_path), "r") as f:
         groups = find_time_groups(f, PRESSURE_DATASET_CANDIDATES)
         if not groups:
-            raise RuntimeError(f"No pressure time groups found in {h5_path}")
+            raise RuntimeError("No pressure time groups found in {}".format(h5_path))
 
-        times: List[float] = []
-        med: List[float] = []
-        pmin: List[float] = []
-        pmax: List[float] = []
+        times = []
+        med = []
+        pmin = []
+        pmax = []
 
         for t, group_path in groups:
             grp = f[group_path]
             pressure = find_dataset_in_group(grp, PRESSURE_DATASET_CANDIDATES)
             if well_idx.max() >= len(pressure):
-                raise IndexError(f"Well index out of bounds for pressure array in {h5_path} at time {t} h.")
+                raise IndexError(
+                    "Well index out of bounds for pressure array in {} at time {} h.".format(h5_path, t)
+                )
             stats = compute_well_stats_at_time(pressure, well_idx)
             times.append(t)
             med.append(stats["median"])
@@ -268,14 +339,14 @@ def extract_pressure_series(h5_path: Path, well_idx: np.ndarray) -> Tuple[np.nda
 
 
 def extract_geomech_series(h5_path: Path, well_idx: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    with h5py.File(h5_path, "r") as f:
+    with h5py.File(str(h5_path), "r") as f:
         groups = find_time_groups(f, STRAIN_COMPONENTS)
         if not groups:
-            raise RuntimeError(f"No geomechanics time groups found in {h5_path}")
+            raise RuntimeError("No geomechanics time groups found in {}".format(h5_path))
 
-        times: List[float] = []
-        med_strains: List[np.ndarray] = []
-        vol_strain: List[float] = []
+        times = []
+        med_strains = []
+        vol_strain = []
 
         for t, group_path in groups:
             grp = f[group_path]
@@ -283,8 +354,10 @@ def extract_geomech_series(h5_path: Path, well_idx: np.ndarray) -> Tuple[np.ndar
             for comp in STRAIN_COMPONENTS:
                 arr = find_dataset_in_group(grp, [comp])
                 if well_idx.max() >= len(arr):
-                    raise IndexError(f"Well index out of bounds for strain array in {h5_path} at time {t} h.")
-                comp_vals.append(np.nanmedian(arr[well_idx]))
+                    raise IndexError(
+                        "Well index out of bounds for strain array in {} at time {} h.".format(h5_path, t)
+                    )
+                comp_vals.append(float(np.nanmedian(arr[well_idx])))
 
             comp_vals_arr = np.asarray(comp_vals, dtype=float)
             times.append(t)
@@ -306,7 +379,7 @@ def prepare_sample_run_dir(
     deck_template_name: str,
     copy_static: bool,
 ) -> Path:
-    sample_dir = run_root / f"sample_{sample_id:04d}"
+    sample_dir = run_root / "sample_{:04d}".format(sample_id)
     sample_dir.mkdir(parents=True, exist_ok=True)
 
     static_files = [
@@ -315,7 +388,14 @@ def prepare_sample_run_dir(
         "layers4.mapping",
         "layers4_material_ids.h5",
         "wellbore.vset",
+
+        # Flow-region boundary faces
         "top.ex", "bottom.ex", "north.ex", "south.ex", "east.ex", "west.ex",
+
+        # Geomechanics-region boundary elements
+        "top.vset", "bottom.vset", "north.vset", "south.vset", "east.vset", "west.vset",
+
+        # Geologic strata regions
         "overburden.vset",
         "bartlesville_sand.vset",
         "basal_layer.vset",
@@ -325,34 +405,44 @@ def prepare_sample_run_dir(
     for fname in static_files:
         src = model_dir / fname
         if not src.exists():
-            raise FileNotFoundError(f"Missing required input file: {src}")
+            raise FileNotFoundError("Missing required input file: {}".format(src))
         link_or_copy(src, sample_dir / fname, copy_static)
 
     deck_src = model_dir / deck_template_name
     if not deck_src.exists():
-        raise FileNotFoundError(f"Missing deck template: {deck_src}")
+        raise FileNotFoundError("Missing deck template: {}".format(deck_src))
 
     deck_text = deck_src.read_text(encoding="utf-8")
     for material, perm in k_map.items():
         deck_text = replace_perm_iso_in_block(deck_text, material, perm)
 
-    # Write the active PFLOTRAN deck as pflotran.in to avoid symlink confusion.
+    # Write the active PFLOTRAN input file as pflotran.in.
     write_text(sample_dir / "pflotran.in", deck_text)
     return sample_dir
 
 
 def run_pflotran(run_dir: Path, pflotran_bin: str, mpiexec: str, nprocs: int) -> None:
     cmd = [mpiexec, "-n", str(nprocs), pflotran_bin]
-    subprocess.run(cmd, cwd=run_dir, check=True)
+    env = os.environ.copy()
+    env["OMP_NUM_THREADS"] = "1"
+
+    # Keep Anaconda available for Python imports, but remove it from the
+    # library path so PETSc/PFLOTRAN does not pick up the wrong libstdc++.
+    ld = env.get("LD_LIBRARY_PATH", "")
+    if ld:
+        parts = [p for p in ld.split(":") if "anaconda3" not in p]
+        env["LD_LIBRARY_PATH"] = ":".join(parts)
+
+    subprocess.run(cmd, cwd=str(run_dir), check=True, env=env)
 
 
 def read_sample_outputs(sample_dir: Path, well_idx: np.ndarray) -> Dict[str, np.ndarray]:
     flow_h5 = sample_dir / "pflotran.h5"
     geomech_h5 = sample_dir / "pflotran-geomech.h5"
     if not flow_h5.exists():
-        raise FileNotFoundError(f"Flow output missing: {flow_h5}")
+        raise FileNotFoundError("Flow output missing: {}".format(flow_h5))
     if not geomech_h5.exists():
-        raise FileNotFoundError(f"Geomechanics output missing: {geomech_h5}")
+        raise FileNotFoundError("Geomechanics output missing: {}".format(geomech_h5))
 
     t_p, p_med, p_min, p_max = extract_pressure_series(flow_h5, well_idx)
     t_s, s_med, ev = extract_geomech_series(geomech_h5, well_idx)
@@ -380,18 +470,18 @@ def main() -> int:
 
     lhs_log10, names = generate_lhs_log10_samples(args.n_samples, DEFAULT_LOG10_BOUNDS, args.seed)
 
-    k_log10_all: List[np.ndarray] = []
-    k_all: List[np.ndarray] = []
-    pressure_times_ref: np.ndarray | None = None
-    strain_times_ref: np.ndarray | None = None
-    pressure_median_all: List[np.ndarray] = []
-    pressure_min_all: List[np.ndarray] = []
-    pressure_max_all: List[np.ndarray] = []
-    strain_median_all: List[np.ndarray] = []
-    volumetric_strain_all: List[np.ndarray] = []
+    k_log10_all = []
+    k_all = []
+    pressure_times_ref = None
+    strain_times_ref = None
+    pressure_median_all = []
+    pressure_min_all = []
+    pressure_max_all = []
+    strain_median_all = []
+    volumetric_strain_all = []
 
-    manifest_rows: List[Dict[str, object]] = []
-    failures: List[Tuple[int, str]] = []
+    manifest_rows = []
+    failures = []
 
     for i in range(args.n_samples):
         sample_id = i + 1
@@ -438,25 +528,23 @@ def main() -> int:
                 "underburden_k": k_map["underburden"],
                 "run_dir": str(sample_dir),
             })
-            print(f"[OK] sample {sample_id:04d}")
+            print("[OK] sample {:04d}".format(sample_id))
 
             if not args.keep_runs:
-                # Keep only the extracted results in the master dataset, not the run folder.
-                # Comment out the next line if you want to inspect each run directory later.
-                shutil.rmtree(sample_dir, ignore_errors=True)
+                shutil.rmtree(str(sample_dir), ignore_errors=True)
 
         except Exception as e:
             failures.append((sample_id, str(e)))
             manifest_rows.append({
                 "sample_id": sample_id,
-                "status": f"failed: {e}",
+                "status": "failed: {}".format(e),
                 "overburden_k": k_map.get("overburden", np.nan),
                 "bartlesville_sand_k": k_map.get("bartlesville_sand", np.nan),
                 "basal_layer_k": k_map.get("basal_layer", np.nan),
                 "underburden_k": k_map.get("underburden", np.nan),
                 "run_dir": str(sample_dir),
             })
-            print(f"[FAIL] sample {sample_id:04d}: {e}", file=sys.stderr)
+            print("[FAIL] sample {:04d}: {}".format(sample_id, e), file=sys.stderr)
 
     if not k_log10_all:
         raise RuntimeError("No successful samples were generated.")
@@ -485,11 +573,14 @@ def main() -> int:
 
     manifest_path = out_dir / "sample_manifest.csv"
     with manifest_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            "sample_id", "status",
-            "overburden_k", "bartlesville_sand_k", "basal_layer_k", "underburden_k",
-            "run_dir",
-        ])
+        writer = csv.DictWriter(
+            f,
+            fieldnames=[
+                "sample_id", "status",
+                "overburden_k", "bartlesville_sand_k", "basal_layer_k", "underburden_k",
+                "run_dir",
+            ],
+        )
         writer.writeheader()
         writer.writerows(manifest_rows)
 
@@ -514,11 +605,12 @@ def main() -> int:
     }
     (out_dir / "dataset_metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
-    print("\nDone.")
-    print(f"Successful samples: {len(k_log10_arr)} / {args.n_samples}")
-    print(f"Dataset: {out_dir / 'dataset_master.npz'}")
-    print(f"Manifest: {manifest_path}")
-    print(f"Metadata: {out_dir / 'dataset_metadata.json'}")
+    print("")
+    print("Done.")
+    print("Successful samples: {} / {}".format(len(k_log10_arr), args.n_samples))
+    print("Dataset: {}".format(out_dir / "dataset_master.npz"))
+    print("Manifest: {}".format(manifest_path))
+    print("Metadata: {}".format(out_dir / "dataset_metadata.json"))
     return 0
 
 
